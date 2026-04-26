@@ -1,6 +1,6 @@
-# NgAiStarter
+# Awork Coding Challenge
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+Hello ! Welcome to the awork challenge 🤩. We are looking forward to seeing what you will come up with!
 
 ## Development server
 
