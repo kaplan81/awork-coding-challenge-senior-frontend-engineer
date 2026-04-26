@@ -7,7 +7,7 @@ Hello ! Welcome to the awork challenge 🤩. We are looking forward to seeing wh
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
@@ -38,21 +38,17 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+To execute all unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+To execute just one test just run, for example:
 
 ```bash
-ng e2e
+make test projects/awork-challenge/src/app/app/containers/app/app.spec.ts
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
 ## Additional Resources
 
