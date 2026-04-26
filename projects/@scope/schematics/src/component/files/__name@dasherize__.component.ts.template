@@ -1,0 +1,18 @@
+import { ChangeDetectionStrategy, Component<% if (componentType === 'c') { %>, DestroyRef, inject, signal, WritableSignal<% } else { %>, input, InputSignal, output, OutputEmitterRef<% } %> } from '@angular/core';
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.<%= changeDetection %>,
+  imports: [],
+  selector: '<%= prefix %>-<%= dasherize(name) %>',
+  standalone: true,
+  styleUrls: ['./<%= dasherize(name) %>.component.<%= style %>'],
+  templateUrl: './<%= dasherize(name) %>.component.html',
+})
+export class <%= classify(name) %>Component {
+<% if (componentType === 'c') { %>  // Remove this prop if this component contains no RxJS subscriptions.
+  #destroyRef = inject(DestroyRef);
+  // Remove this prop if this component contains no loading interface (e.g. spinner or progress).
+  isLoading: WritableSignal<boolean> = signal<boolean>(true);<% } else { %>  // Replace unknown with the actual data model for both inputs and outputs.
+  inputData: InputSignal<unknown | null> = input<unknown | null>(null);
+  outputData: OutputEmitterRef<unknown> = output<unknown>();<% } %>
+}

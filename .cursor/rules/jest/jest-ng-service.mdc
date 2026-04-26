@@ -1,0 +1,170 @@
+---
+description: 
+globs: **/*.service.spec.ts
+alwaysApply: false
+---
+
+# Jest Angular Service Testing
+
+Whenever we test Angular services the approach is somehow different and smoother from when we are testing components.
+
+If your service is not injecting any other services or performing any HTTP calls, it is possible that you can test this as a normal symbol, without Angular testing utilities.
+
+```ts
+// BAD
+describe('MyService', () => {
+  let service: MyService;
+
+  beforeEach(() => {
+    service = new MyService();
+  });
+});
+```
+
+However, we do not want that. For consistency and scalability, we should always use the `TestBed`:
+
+```ts
+// BETTER
+describe('MyService', () => {
+  let service: MyService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [MyService],
+    });
+    service = TestBed.inject(MyService);
+  });
+});
+```
+
+### Acceptance criteria it()
+
+Right before we start testing each and every spec, we need to have one that is common to every component unit test.
+
+We need to ensure that our service can be properly instantiated through Angular's dependency injection system. This test verifies that:
+
+1. The service is correctly configured as an injectable
+2. Angular's DI container can create and provide the service instance
+3. The service doesn't have any constructor issues that would prevent instantiation
+4. The injected service is the same instance that TestBed provides
+
+This is our basic acceptance criteria for any Angular service - if it cannot be instantiated via DI, it's fundamentally broken as an Angular service.
+
+```ts
+it('can be instantiated via DI', inject([MyService], (injectedService: MyService) => {
+  expect(injectedService).toEqual(service);
+}));
+```
+
+### HTTP services setup
+
+These kind of services require a special setup with both `beforeEach()` and `afterEach()`:
+
+```ts
+describe('MyHttpService', () => {
+  let service: MyHttpService;
+  let httpClient: HttpClient;
+  let httpTestingController: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [MyHttpService, provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(MyHttpService);
+    httpClient = TestBed.inject(HttpClient);
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTestingController.verify();
+  });
+});
+```
+
+After each spec `httpTestingController.verify()` will be triggered to check if there are any unmatched (pending) HTTP requests. We do not want loose ends.
+
+Do not forget to use e.g. `withInterceptors([myInterceptor1, myInterceptor2])` as a param of `provideHttpClient()` if interceptors need to be added to the test.
+
+> **📝 Important Note** - Keep in mind to provide `provideHttpClient()` before `provideHttpClientTesting()`, as `provideHttpClientTesting()` will overwrite parts of `provideHttpClient()`. Doing it the other way around can potentially break your tests. On the other hand, `provideHttpClientTesting()` alone does not work. You have to combine both.
+
+> **🔄 Observation** - You can only use `withInterceptors()` with function interceptors. If you use class based interceptors, you need to specify them as a separate provider.
+
+> > **⚠️ Deprecation Warning** - Avoid using `HttpClientTestingModule` in new tests. The module-based approach is deprecated in favor of the standalone providers `provideHttpClient()` and `provideHttpClientTesting()` shown above. This aligns with Angular's move toward standalone APIs and better tree-shaking.
+
+#### Testing successful HTTP calls
+
+They also require special treatment.
+
+Normally, when we test a public method, we do it by directly executing it and checking that it does what is expected to do.
+
+However, when a method performs an HTTP call, the first thing we should do is to test the actual call, the HTTP request.
+
+For that, we have a testing utility function called `checkHttpRequestSuccess()` in the project. This function handles the complete testing workflow for successful HTTP requests: it makes the HTTP call using the provided HttpClient, sets up request expectations with the HttpTestingController, verifies the request details (method, URL, headers, body, etc.), and uses `req.flush()` to simulate the backend response with test data. It then validates that the response matches the expected data and calls the `done()` callback to complete the async test.
+
+Use these HTTP testing utilities in your service specs - search for `checkHttpRequest` functions in the codebase to find the implementations.
+
+```ts
+describe('getUsers()', () => {
+  it('should make GET request to fetch users', (done: jest.DoneCallback) => {
+    checkHttpRequestSuccess({
+      done,
+      httpClient,
+      httpTestingController,
+      method: 'GET',
+      testData: usersMock,
+      url: '/api/users',
+    });
+  });
+  it('should maybe expect other things too', () => {
+    // more specs.
+  });
+});
+```
+
+#### Testing HTTP backend errors
+
+The previously shown utility function only tests successful calls.
+
+We have a different one for failed backend calls called `checkHttpRequestBackendError()`. This function handles the complete testing workflow for HTTP requests that result in backend error responses: it makes the HTTP call using the provided HttpClient, sets up request expectations with the HttpTestingController, configures the error scenario by validating that both status and statusText are provided together, and uses `req.flush()` with an error message and HTTP status code (like 404, 400, 500, etc.) to simulate backend error responses. It then verifies that the error response contains the expected status code and error message, and calls the `done()` callback to complete the async test.
+
+Use these HTTP testing utilities in your service specs - search for `checkHttpRequest` functions in the codebase to find the implementations.
+
+```ts
+describe('getUsers()', () => {
+  it('should handle 404 error when users not found', (done: jest.DoneCallback) => {
+    checkHttpRequestBackendError({
+      done,
+      errorError: 'Users not found',
+      failingTestMessage: 'Expected GET request to fail with 404',
+      httpClient,
+      httpTestingController,
+      method: 'GET',
+      status: 404,
+      statusText: 'Not Found',
+      url: '/api/users',
+    });
+  });
+});
+```
+
+#### Testing HTTP network errors
+
+We have a third one for failed network calls called `checkHttpRequestNetworkError()`. This function handles the complete testing workflow for HTTP requests that fail at the network level: it makes the HTTP call using the provided HttpClient, sets up request expectations with the HttpTestingController, and simulates network-level failures (like connection timeouts, network unavailable, DNS resolution errors, etc.) by using `req.error()` with a `ProgressEvent` instead of flushing a response. It then verifies that the error is an instance of `ProgressEvent` with the expected error message type, and calls the `done()` callback to complete the async test. This approach tests scenarios where the request never reaches the backend due to network infrastructure issues.
+
+Use these HTTP testing utilities in your service specs - search for `checkHttpRequest` functions in the codebase to find the implementations.
+
+```ts
+describe('getUsers()', () => {
+  it('should handle network error when connection fails', (done: jest.DoneCallback) => {
+    checkHttpRequestNetworkError({
+      done,
+      errorMessage: 'Connection timeout',
+      failingTestMessage: 'Expected network connection to fail',
+      httpClient,
+      httpTestingController,
+      method: 'GET',
+      url: '/api/users',
+    });
+  });
+});
+```

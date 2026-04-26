@@ -1,0 +1,172 @@
+---
+description: 
+globs: **/*.component.spec.ts
+alwaysApply: false
+---
+
+# Jest Angular Component Testing
+
+We can distinguish between 3 types of unit tests:
+
+1. **Isolation tests**: we test the component isolated. We do not care about its relationship either with the app or with the framework. It is mostly used for independent functionalities such as e.g. pipes.
+2. **Shallow tests**: we test the component in relationship with the framework. It is used for Angular declarations, so for components and directives, when you are working in an app project.
+3. **Integration tests**: we test the component in relationship with a wrapper component that could represent an app or a container component, or even a microfrontend.
+
+If we test a component in an app project, we should use shallow tests.
+
+If we test a component in a library project, we should use integration tests.
+
+### Do not use Angular schemas
+
+We should never use `NO_ERRORS_SCHEMA`, since it ignores unrecognised elements and attributes which also means the compiler will not throw any errors about missing components and their attributes. It is a hack and it is never needed. To avoid those errors, just mock the needed components.
+
+We should never use `CUSTOM_ELEMENTS_SCHEMA`, since that is meant to be used only for custom elements, so for web components.
+
+### Do a consistent setup beforeEach
+
+The setup `beforeEach()` for components is a little particular. It may contain both synchronous and asynchronous parts and we need to consolidate both.
+
+For example, we use `compileComponents()` in it, which compiles the testing module asynchronously after you have finished configuring it. This is a `TestBed` method needed for any components that specify `templateUrl` or `styleUrls` (most of them in this project).
+
+That method returns a promise and therefore it is best to wrap our setup `beforeEach()`'s callback function in async/await.
+
+The setup `beforeEach()` also references and assigns values to the let variables declared right before it. Namely:
+
+```ts
+let fixture: ComponentFixture<MyComponent>;
+let component: MyComponent;
+let debugEl: DebugElement;
+let nativeEl: Element | HTMLElement;
+```
+
+Let us define each of them:
+
+- **fixture**: this is the ComponentFixture wrapper around the component and its DOM element. It provides utilities for testing and debugging. It is mandatory to declare.
+- **component**: Also known as `componentInstance`, we will need it to access the component properties or methods. It is used in many cases.
+- **debugElement**: since we could be running our tests on a non-browser platform Angular provides this wrapper of the native element that works across platforms. This is very convenient for us, since Jest runs on a DOM emulation called jsdom. We will use this debug element to query other elements. It is optional to declare, depending on the testing needs.
+- **nativeElement**: at times we will also need to use this one since it contains the concrete DOM methods for that element. It is optional to declare, depending on the testing needs.
+
+### Instantiation and change detection
+
+We need to clearly understand that Angular component rendering can be broadly categorized into instantiation and change detection phases.
+
+1. Instantiation phase. Happens during the class construction. Property assignment and dependency injection happen there.
+2. Change detection phases. It starts with the first call to `ngOnChanges()`. Right after that one, `ngOnInit()` is called and we have access to input data. The rest of the lifecycle hooks are referenced in the [Angular docs](https://angular.dev/guide/components/lifecycle).
+
+And this is how we trigger both in our unit tests:
+
+```ts
+// This one triggers instantiation.
+fixture = TestBed.createComponent(MyComponent);
+// This one triggers change detection.
+fixture.detectChanges();
+```
+
+We can think of the first one belonging to the `constructor()` whereas the second one would belong to the `ngOnInit()`.
+
+Instantiation is mandatory to be triggered in the setup `beforeEach()`, right after `compileComponents();`.
+
+However, `fixture.detectChanges()` (despite the general practice) should never be called in the setup `beforeEach()`, because if you do that you lose the ability to test the constructor behavior in isolation, which can be important for certain scenarios. So, even when repetitive, it is best to always write that line of code on every spec instead, because each test should have control over when change detection runs. Some tests might want to set up inputs or spies before triggering the first change detection cycle, for example.
+
+Nevertheless, if we have an `it()` spec that calls `fixture.detectChanges()` several times, we just run it once in the beginning by executing `fixture.autoDetectChanges()`.
+
+The beginning of our Jest component test should look similar to this:
+
+```ts
+describe('MyComponent', () => {
+  let fixture: ComponentFixture<MyComponent>;
+  let component: MyComponent;
+  let debugEl: DebugElement;
+  let nativeEl: Element | HTMLElement;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [MyComponent],
+    }).compileComponents();
+    fixture = TestBed.createComponent(MyComponent);
+    component = fixture.componentInstance;
+    debugEl = fixture.debugElement;
+    nativeEl = debugEl.nativeElement;
+  });
+```
+
+If our component is `standalone`, it should not be included in the `declarations` array but in the `imports` one, since it is compiled to the same thing as an NG module.
+
+### Acceptance criteria it()
+
+Right before we start testing each and every spec, we need to have one that is common to every component unit test.
+
+Since we are using Jest as our unit testing framework, we should take full advantage of it and in this case use one of its most relevant features: [Snapshot Testing](https://jestjs.io/docs/snapshot-testing).
+
+In this `it()` it is mandatory to trigger change detection first.
+
+```ts
+// WRONG
+it('should create', () => {
+  expect(component).toBeTruthy();
+});
+// RIGHT
+it('should match snapshot', () => {
+  fixture.detectChanges();
+  expect(fixture).toMatchSnapshot();
+});
+```
+
+This will automatically generate a snapshot file and therefore the component creation should be checked against that snapshot and not just against its truthiness, which is a very vague approach.
+
+After that, a sequence of `describe -> it + it + it...`s will follow and, unless we are performing any special logic in a lifecycle hook, we should not add any specs to test those public built-in methods. The `ngOnInit()` is pretty much tested by the snapshot anyway. We should mostly just test our public methods.
+
+### Testing critical inputs
+
+When a parent component passes values to child components through input bindings, it's important to verify that critical inputs are actually being passed, not just that the parent component's property has the correct value.
+
+This is especially important when:
+
+- Child component inputs are optional but critical for the parent's use case
+- You need to ensure the parent-child communication is working correctly
+- The input binding is essential for the component's functionality
+
+#### Testing input bindings with mocked child components
+
+Use component queries to verify that input values are actually passed to child components:
+
+```ts
+import { By } from '@angular/platform-browser';
+
+import { MockComponent } from 'ng-mocks';
+
+describe('ParentComponent', () => {
+  let fixture: ComponentFixture<ParentComponent>;
+  let component: ParentComponent;
+  let debugEl: DebugElement;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ParentComponent, MockComponent(ChildComponent)],
+    }).compileComponents();
+    fixture = TestBed.createComponent(ParentComponent);
+    component = fixture.componentInstance;
+    debugEl = fixture.debugElement;
+  });
+
+  describe('criticalProperty binding', () => {
+    it('should pass criticalProperty to child component input', () => {
+      component.criticalProperty = 'expected-value';
+      fixture.detectChanges();
+      const childDebugElement: DebugElement = debugEl.query(By.css('app-child'));
+      expect(childDebugElement.componentInstance.criticalInput).toBe('expected-value');
+    });
+  });
+});
+```
+
+#### Why not use `protected` for testing
+
+Do not make component properties `protected` just to force testing through child components. This approach:
+
+- Breaks the component's API contract (template-used properties should be public)
+- Creates confusion for other developers
+- Changes production code to accommodate test requirements
+- Violates the principle that `protected` promotes inheritance
+
+Instead, test the parent-child relationship directly using component queries as shown above.

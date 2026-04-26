@@ -1,0 +1,231 @@
+---
+description: TypeScript class structure and member guidelines
+globs:
+alwaysApply: false
+---
+
+# Classes
+
+Even though a Frontend component-based architecture should not follow the [SOLID](https://en.wikipedia.org/wiki/SOLID) principles, when it comes to TypeScript classes there is one we should respect: the single-responsibility principle (SRP). Moreover, we should have each class committed to a single file. So "1 class => 1 file".
+
+Angular symbols such as components and services are decorated with e.g. `@Component()` or `@Injectable()`. However, keep in mind that the framework uses the Angular compiler, which is a superset of the TypeScript one, and those decorators are, in no way, real ones, but Angular ones.
+
+That being said, since TypeScript 5 it is perfectly OK to use TypeScript decorators. However, we should always prefer to use mixin classes instead, promoting at the same time composition, rather than inheritance.
+
+For a detail contention in favor of TypeScript class composition and why and how we should use mixin classes, do read [Andres Gesteira's article](https://quantum-quirks.hashnode.dev/class-composition-in-typescript) on this topic.
+
+Anyhow, avoiding inheritance is the first best practice and therefore, declaring abstract classes is strictly forbidden.
+
+On the other hand, declaring classes as models is a terrible practice, since they increase the final bundle and usually contain functionality that should be written in an Angular service. Always use interfaces instead.
+
+```ts
+// WRONG - Class as model (increases bundle size)
+export class User {
+  constructor(
+    id: number,
+    name: string,
+    email: string
+  ) {}
+
+  getFullName(): string {
+    return this.name.toUpperCase();
+  }
+
+  isValidEmail(): boolean {
+    return this.email.includes('@');
+  }
+}
+
+// WRONG - Using the class
+const user = new User(1, 'John Doe', 'john@example.com');
+
+// RIGHT - Interface as model (zero bundle impact)
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+// RIGHT - Logic in service instead of model
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+  getFullName(user: User): string {
+    return user.name.toUpperCase();
+  }
+
+  isValidEmail(user: User): boolean {
+    return user.email.includes('@');
+  }
+}
+
+// RIGHT - Using interface with service
+const user: User = { id: 1, name: 'John Doe', email: 'john@example.com' };
+const fullName: string = this.#userService.getFullName(user);
+```
+
+Classes are structured this way:
+
+1. Property members.
+2. Accessors (getters and setters).
+3. Constructor.
+4. Method members.
+
+In TypeScript member (property or method) visibility can be restricted by access modifiers. Namely:
+
+- `public` - It is default and therefore we will never use it.
+- `protected` - Since it promotes inheritance, we will never use it.
+- `private` - We will never use it because it compiles to public. We will use [EcmaScript private identifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements) instead because they are actually private and therefore more secure.
+
+In short: only use public members without access modifier and natively private members with hash (`#`).
+
+If a class member is not a parameter, initialize it where it's declared, which sometimes lets you drop the constructor entirely.
+
+```ts
+// WRONG - Initialization in constructor
+export class UserComponent {
+  userName: string;
+  userData: { users: User[] } | null;
+
+  constructor() {
+    this.userName = 'John Doe';
+    this.userData = null;
+  }
+}
+
+// RIGHT - Initialize at declaration (no constructor needed)
+export class UserComponent {
+  userName = 'John Doe';
+  userData: { users: User[] } | null = null;
+  // Constructor eliminated entirely!
+}
+```
+
+Angular services must be declared by using [Angular's `inject` function](https://angular.dev/api/core/inject). That avoids using params in the constructor, which are not erasable, offers the flexibility of using those services in any injection context. On top of that, they should all carry a hash (`#`) and never be `readonly`.
+
+```ts
+// WRONG - Constructor injection (not erasable)
+constructor(private userService: UserService) {}
+
+// WRONG - readonly prevents flexibility
+readonly #userService = inject(UserService);
+
+// RIGHT - Private identifier with inject function
+#userService = inject(UserService);
+```
+
+Most providers should be named after their class but in `lowerCamelCase`. However, by convention, there are some exceptions to this rule:
+
+- For `HttpClient`: it should be `#http` instead of `#httpClient`.
+- For `ActivatedRoute`: it should be `#route` instead of `#activatedRoute`.
+- For `ChangeDetectorRef`: it should be `#cdr` instead of `#changeDetectorRef`.
+
+We will mostly use the `readonly` keyword in conjunction with the `static` keyword. The latter allows us to access the value without instantiating the class, while the former ensures we cannot mutate it. We will use this kind of declaration for class local constants:
+
+```ts
+static readonly apiBaseUrl = 'https://api.example.com';
+```
+
+We will also use `readonly` when aliasing properties:
+
+```ts
+export const enum UserRole {
+  admin,
+  user,
+  guest,
+}
+
+export class UserComponent {
+  readonly userRole = UserRole;
+  #userService = inject(UserService);
+  userName = 'John Doe';
+  userData: { users: User[] } | null = null;
+}
+```
+
+Classes usually should not contain properties initialized to arrow functions. Arrow function properties require the calling function to understand that the callee's `this` is already bound, which increases confusion about what `this` is, and call sites and references using such handlers look broken.
+
+```ts
+// WRONG - Arrow function properties
+export class UserComponent {
+  handleClick = (event: Event) => {
+    console.log(this, event);
+  };
+}
+
+// RIGHT - Regular methods
+export class UserComponent {
+  handleClick(event: Event): void {
+    console.log(this, event);
+  }
+}
+```
+
+In general, class properties should not be assigned to any function. As an exception, if we are not using Angular signals we can use a utility memoization function to avoid undesired function calls in Angular templates.
+
+```ts
+export function memo<T extends (...args: unknown[]) => ReturnType<T> | undefined>(fnToMemoize: (...args: unknown[]) => unknown): T {
+  let prevArgs: unknown[] = [{}];
+  let result: ReturnType<T> | undefined;
+
+  return function (...newArgs: unknown[]): ReturnType<T> | undefined {
+    if (hasFnToMemoizeDifferentArgs(prevArgs, newArgs)) {
+      result = fnToMemoize(...newArgs) as ReturnType<T>;
+      prevArgs = newArgs;
+    }
+    return result;
+  } as T;
+}
+
+export class UserComponent {
+  readonly userRole = UserRole;
+  #userService = inject(UserService);
+  userName = 'John Doe';
+  userData: { users: User[] } | null = null;
+  // Memoized function that prevents recalculation on every template call
+  getFilteredUsers = memo<(searchTerm: string) => User[]>((searchTerm: string) => {
+    return this.userData?.users.filter((user: User) => user.name.toLowerCase().includes(searchTerm.toLowerCase())) ?? [];
+  });
+}
+```
+
+Getters and setters have to be transpiled into bloated code so it is a good practice to avoid using them in general. However, sometimes this responsibility eludes us and we feel compelled to use them. In that case they should be properly declared:
+
+```ts
+export type FormInputFieldValue = string | number | boolean | File | FileList | Date;
+
+export class InputFieldComponent implements ControlValueAccessor {
+  #inputValue: FormInputFieldValue | null = null;
+  #onChange: (value: FormInputFieldValue | null) => void = () => {};
+  #onTouch: () => void = () => {};
+  @Input() pipe: PipeTransform | null = null;
+  @Input() pipeArgs: unknown[] = [];
+  get inputValue(): FormInputFieldValue | null {
+    return this.#inputValue;
+  }
+  @Input()
+  set inputValue(value: FormInputFieldValue | null) {
+    this.#inputValue = this.pipe !== null && value !== null ? this.pipe.transform(value, ...this.pipeArgs) : value;
+    this.#onChange(this.#inputValue);
+    this.#onTouch();
+  }
+}
+```
+
+Note that setter accessors do not have a return type.
+
+Another excellent practice is member ordering, to arrange the code consistently to avoid merge conflicts.
+
+The finest sorting for a TypeScript class in Angular is this:
+
+1. Static readonly properties.
+2. #Private properties.
+3. Public properties.
+4. Getters.
+5. Setters.
+6. Constructor (omit if empty).
+7. Public methods.
+8. #Private methods.
+
+For each group, we use alphabetical ordering.

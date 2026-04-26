@@ -1,0 +1,32 @@
+---
+description: Playwright testing guidelines and patterns
+globs: projects/fz-original/playwright/**/*,projects/fz-kiosk/playwright/**/*
+alwaysApply: false
+---
+
+# Playwright Guidelines
+
+Playwright is a framework for Web Testing and Automation. It allows testing Chromium, Firefox and WebKit with a single API. The purpose of these guidelines is to provide consistency and best practices for Playwright test development within this project's monorepo structure.
+
+Our repository follows a specific project structure for Playwright tests, with separate spaces for different applications (fz-original and fz-kiosk).
+
+### Context-Aware Rule Loading
+
+**For AI/LLM:** Load specific rule files based on the Playwright development task:
+
+**ALWAYS load for ANY Playwright testing:**
+
+- [Playwright Guide](mdc:.cursor/rules/playwright/playwright-guide.mdc) - Required for all test creation, page objects, fixtures, and test organization
+
+**Load based on specific development scenarios:**
+
+- **When creating e2e tests** → Load [Playwright Guide](mdc:.cursor/rules/playwright/playwright-guide.mdc)
+- **When creating page objects** → Load [Playwright Guide](mdc:.cursor/rules/playwright/playwright-guide.mdc)
+- **When setting up fixtures** → Load [Playwright Guide](mdc:.cursor/rules/playwright/playwright-guide.mdc)
+- **When working with mocks and models** → Load [Playwright Guide](mdc:.cursor/rules/playwright/playwright-guide.mdc)
+
+### Quick Reference
+
+For manual navigation to specific guidelines:
+
+- [Playwright Guide](mdc:.cursor/rules/playwright/playwright-guide.mdc) - Complete Playwright testing patterns, folder structure, and best practices

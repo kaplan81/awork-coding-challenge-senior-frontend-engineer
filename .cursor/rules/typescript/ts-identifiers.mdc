@@ -1,0 +1,87 @@
+---
+description: TypeScript identifier naming conventions and rules
+globs:
+alwaysApply: false
+---
+
+# Identifiers
+
+Identifiers must use only ASCII letters, digits and the "$" sign.
+
+| Style                                 | Category                                                           |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| `UpperCamelCase`                      | class / interface / type / enum / mixin / module                   |
+| `lowerCamelCase`                      | variable / parameter / function / method / property / module alias |
+| `CONSTANT_CASE`                       | angular injection tokens                                           |
+| `#ident`                              | private identifiers                                                |
+| Finnish notation (lowerCamelCase + $) | RxJS observables                                                   |
+
+Even though `CONSTANT_CASE` is commonly used to refer to values that should be not be modified and gen AI usually applies this convention we will obviate and will reserve this convention exclusively for [Angular injection tokens](https://angular.dev/api/core/InjectionToken).
+
+```ts
+const SOME_TOKEN = new InjectionToken<MyInterface>('SomeToken');
+```
+
+The naming style should be precise and descriptive at the same time.
+
+Do not suffix the name with the type or the symbol type, since it is redundant:
+
+```ts
+// WRONG
+searchSubject = new Subject<string>();
+export enum EnvironmentEnum {
+  local,
+  dev,
+  stag,
+  prod,
+}
+
+// RIGHT
+search$ = new Subject<string>();
+export enum Environment {
+  local,
+  dev,
+  stag,
+  prod,
+}
+```
+
+Do not use leading or trailing underscore.
+
+```ts
+// WRONG
+_privateProperty = 'value';
+publicProperty_ = 'value';
+__internalMethod() {}
+
+// RIGHT
+#privateProperty = 'value';
+publicProperty = 'value';
+internalMethod() {}
+```
+
+Do not prefix interfaces with "I".
+
+```ts
+// WRONG
+export interface ICode {}
+
+// RIGHT
+export interface Code {}
+```
+
+Always prefix booleans with "has" and "is".
+
+```ts
+// WRONG
+loading: boolean = false;
+disabled: boolean = true;
+children: boolean = false;
+errors: boolean = true;
+
+// RIGHT
+isLoading: boolean = false;
+isDisabled: boolean = true;
+hasChildren: boolean = false;
+hasErrors: boolean = true;
+```

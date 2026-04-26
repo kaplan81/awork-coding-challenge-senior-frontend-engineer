@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DashboardComponent > should match snapshot 1`] = `
+_DashboardComponent {
+  "__ngContext__": 0,
+  "isLoading": [Function],
+}
+`;

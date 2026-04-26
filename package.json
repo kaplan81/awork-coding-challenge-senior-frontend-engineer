@@ -1,0 +1,39 @@
+{
+  "name": "ng-ai-starter",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "test:file": "ng test --no-watch --include",
+    "build:fz-schematics": "npm run build --prefix projects/@scope/schematics",
+    "build:fz-schematics:watch": "npm run build:watch --prefix projects/@scope/schematics",
+    "schematics:component": "schematics ./projects/@scope/schematics/src/collection.json:c",
+    "generate:component": "npm run schematics:component -- --no-dry-run"
+  },
+  "private": true,
+  "packageManager": "npm@11.9.0",
+  "dependencies": {
+    "@angular/common": "^21.2.3",
+    "@angular/compiler": "^21.2.3",
+    "@angular/core": "^21.2.3",
+    "@angular/forms": "^21.2.3",
+    "@angular/platform-browser": "^21.2.3",
+    "@angular/router": "^21.2.3",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/schematics-cli": "^21.2.2",
+    "@angular/build": "^21.2.2",
+    "@angular/cli": "^21.2.2",
+    "@angular/compiler-cli": "^21.2.3",
+    "@types/node": "^25.5.0",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}

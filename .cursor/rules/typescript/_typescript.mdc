@@ -1,0 +1,50 @@
+---
+description: TypeScript coding style and rules
+globs: **/*.ts
+alwaysApply: false
+---
+
+# TypeScript Guidelines
+
+In order to be productive, every technical debate should arise before we get to the pull request, by establishing acceptance criteria beforehand. That will increase productivity, reduce technical debt and avoid runtime errors as well as merge conflicts. The purpose of these guidelines is to provide that criteria on the main language of this project: TypeScript.
+
+Moreover, the guidelines assume that TypeScript is getting used within an Angular framework architecture.
+
+### Context-Aware Rule Loading
+
+**For AI/LLM:** Load specific rule files based on the coding task:
+
+**ALWAYS load for ANY TypeScript code:**
+
+- [Identifiers](mdc:.cursor/rules/typescript/ts-identifiers.mdc) - Required for all naming (variables, functions, classes, etc.)
+- [Strong Typing](mdc:.cursor/rules/typescript/ts-typing.mdc) - Required for all type-related work (type assertions, interfaces, type aliases, `as`, `satisfies`)
+- [Comments & Documentation](mdc:.cursor/rules/typescript/ts-comments.mdc) - Required to avoid unnecessary JSDoc comments and follow documentation standards
+
+**Load based on specific coding patterns:**
+
+- **When declaring variables** (`const`, `let`, `var`) → Load [Variable Declaration](mdc:.cursor/rules/typescript/ts-variables.mdc)
+- **When initializing properties** (class properties, object initialization) → Load [Initializations](mdc:.cursor/rules/typescript/ts-initializations.mdc)
+- **When writing conditionals** (`if`, `switch`, ternary, boolean logic, `??`, `||`) → Load [Expressions](mdc:.cursor/rules/typescript/ts-expressions.mdc)
+- **When working with arrays/objects** (spread operator, mutations, functional patterns) → Load [Immutability](mdc:.cursor/rules/typescript/ts-immutability.mdc)
+- **When converting types** (`Number()`, `String()`, `Boolean()`, `parseInt`, `!!`) → Load [Type Coercion](mdc:.cursor/rules/typescript/ts-coercion.mdc)
+- **When writing loops** (`for`, `forEach`, `map`, `filter`, array iteration) → Load [Iterations](mdc:.cursor/rules/typescript/ts-iterations.mdc)
+- **When declaring functions** (function declarations, arrow functions, callbacks) → Load [Functions](mdc:.cursor/rules/typescript/ts-functions.mdc)
+- **When working with enums** (already auto-loaded for `*.enum.ts` files) → Load [Enums](mdc:.cursor/rules/typescript/ts-enums.mdc)
+- **When writing classes** (class declarations, methods, properties, private identifiers) → Load [Classes](mdc:.cursor/rules/typescript/ts-classes.mdc)
+
+### Quick Reference
+
+For manual navigation to specific guidelines:
+
+- [Identifiers](mdc:.cursor/rules/typescript/ts-identifiers.mdc) - Naming conventions
+- [Comments](mdc:.cursor/rules/typescript/ts-comments.mdc) - JSDoc guidelines
+- [Variables](mdc:.cursor/rules/typescript/ts-variables.mdc) - Declaration rules
+- [Typing](mdc:.cursor/rules/typescript/ts-typing.mdc) - Type assertions & practices
+- [Initializations](mdc:.cursor/rules/typescript/ts-initializations.mdc) - Property initialization
+- [Expressions](mdc:.cursor/rules/typescript/ts-expressions.mdc) - Conditionals & logic
+- [Immutability](mdc:.cursor/rules/typescript/ts-immutability.mdc) - Functional patterns
+- [Coercion](mdc:.cursor/rules/typescript/ts-coercion.mdc) - Type conversion
+- [Iterations](mdc:.cursor/rules/typescript/ts-iterations.mdc) - Loops & iteration
+- [Functions](mdc:.cursor/rules/typescript/ts-functions.mdc) - Function declarations
+- [Enums](mdc:.cursor/rules/typescript/ts-enums.mdc) - Enum alternatives
+- [Classes](mdc:.cursor/rules/typescript/ts-classes.mdc) - Class structure

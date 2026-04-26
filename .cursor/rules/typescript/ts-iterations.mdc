@@ -1,0 +1,67 @@
+---
+description: TypeScript iteration and loop guidelines
+globs:
+alwaysApply: false
+---
+
+# Iterations
+
+Iterating objects with `for (... in ...)` is error prone. It will include enumerable properties from the prototype chain.
+
+Either filter values explicitly with an `if` statement, or preferably use `for (... of Object.entries(...))` to get both keys and values directly.
+
+```ts
+// OK'ish
+for (const x in someObj) {
+  if (!Object.prototype.hasOwnProperty.call(someObj, x)) {
+    continue;
+  }
+  // now x was definitely defined on someObj
+}
+// BETTER
+for (const x of Object.keys(someObj)) {
+  // note: for _of_!
+  // now x was definitely defined on someObj
+}
+// BEST
+for (const [key, value] of Object.entries(someObj)) {
+  // note: for _of_!
+  // now key was definitely defined on someObj
+}
+```
+
+On the other hand, do not use `for (... in ...)` to iterate over arrays. It will counterintuitively give the array's indices (as strings!), not values:
+
+```ts
+for (const x in someArray) {
+  // x is the index!
+}
+```
+
+Use `for (... of someArr)` or vanilla for loops with indices to iterate over arrays.
+
+```ts
+for (const x of someArr) {
+  // x is a value of someArr.
+}
+
+for (let i = 0; i < someArr.length; i++) {
+  // Explicitly count if the index is needed, otherwise use the for/of form.
+  const x = someArr[i];
+  // ...
+}
+for (const [i, x] of someArr.entries()) {
+  // Alternative version of the above.
+}
+```
+
+Do not use `Array.prototype.forEach`, `Set.prototype.forEach`, and `Map.prototype.forEach`. They make code harder to debug and defeat some useful compiler checks (e.g. reachability). Consider this code:
+
+```ts
+let x: string | null = 'abc';
+myArray.forEach(() => x.charAt(0));
+```
+
+You can recognize that this code is fine: `x` isn't null and it doesn't change before it is accessed. But the compiler cannot know that this `.forEach()` call doesn't hang on to the closure that was passed in and call it at some later point, maybe after `x` was set to `null`, so it flags this code as an error. The equivalent for-of loop is fine.
+
+In practice, variations of this limitation of control flow analysis show up in more complex codepaths where it is more surprising.

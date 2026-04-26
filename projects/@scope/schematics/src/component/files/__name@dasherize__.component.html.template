@@ -1,0 +1,5 @@
+<div class="<%= dasherize(name) %>">
+  <div class="<%= dasherize(name) %>__block">
+    <!-- layout -->
+  </div>
+</div>

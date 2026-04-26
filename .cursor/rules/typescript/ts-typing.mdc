@@ -1,0 +1,107 @@
+---
+description: TypeScript strong typing guidelines and type assertions
+globs:
+alwaysApply: false
+---
+
+# Strong typing
+
+Every declaration should be strongly typed. That is the only way to ensure rock solid code that fully avoids error prone implementations.
+
+Never use `// @ts-ignore` above the offending lines. Instead of that, resolve the typing problems properly.
+
+Never use `any` since that is not a type but a compiler muffler that silences typing.
+
+Avoid types such `object` or `Function` and be precise on the intended type instead.
+
+If you need to refer to a type that you do not know yet, do use `unknown`.
+
+Type assertions (`x as SomeType`) and non-nullability assertions (`y!`) are unsafe. They both do not insert any runtime checks to match these assertions, so they can cause your program to crash at runtime. They should not be used without an obvious or explicit reason for doing so, and line comments should be added for clarification in those cases.
+
+In Angular, the non-null assertion operator is justified to designate required inputs:
+
+```ts
+// WRONG
+@Component()
+export class MyComponent {
+  @Input() description!: string;
+}
+// RIGHT
+@Component()
+export class MyComponent {
+  @Input({ required: true }) description!: string;
+}
+```
+
+If we should use type assertions they must use the `as` syntax (as opposed to the angle brackets syntax). This enforces parentheses around the assertion when accessing a member.
+
+```ts
+type StatusCode = number | string;
+
+function processResponse(status: StatusCode): string {
+  // Type assertion needed because TypeScript doesn't know which type it is
+  if (typeof status === 'string') {
+    return (status as string).toUpperCase(); // We know it's a string here
+  }
+  // Or when we know the context guarantees a specific type
+  const numericStatus = status as number; // We know it's a number here
+  return `HTTP ${numericStatus}`;
+}
+```
+
+Other times it is better to use `satisfies` instead of the type assertion, to ensure type conformance while preserving specificity.
+
+```ts
+type Color = string | { r: number; g: number; b: number };
+const green = 'green' as Color; // Type: Color (union type)
+const blue = 'blue' satisfies Color; // Type: 'blue' (literal string type)
+green.toUpperCase(); // ❌ Error! "Property 'toUpperCase' does not exist on type 'Color'"
+blue.toUpperCase(); // ✅ Works! TypeScript knows it's specifically a string
+```
+
+Strong typing means "try to type absolutely everything" including not only variables but also return types and function parameters, including callbacks. However, there are exceptions:
+
+- Trivially inferred values.
+- Assign an instance of a class with the `new` operator, e.g. `const obs$ = new BehaviorSubject<string[]>([]);`. Remember that, in those cases, the class is also the type.
+- The return type can be inferred in arrow functions without any potential errors.
+
+TypeScript supports type aliases for naming a type expression. This can be used to name primitives, unions, tuples, and any other types.
+
+However, when declaring types for objects, use interfaces instead of a type alias for the object literal expression.
+
+Type aliases must not include `| null` or `| undefined` in a union type. Nullable aliases typically indicate that null values are being passed around through too many layers of an application, and this clouds the source of the original issue that resulted in null. They also make it unclear when specific values on a class or interface might be absent.
+
+Instead, code must only add `| null` or `| undefined` when the alias is actually used. Code should deal with null values close to where they arise, using the above techniques.
+
+```ts
+// BAD
+type CoffeeResponse = Latte | Americano | undefined;
+
+class CoffeeService {
+  getLatte(): CoffeeResponse { ... };
+}
+
+// BETTER
+type CoffeeResponse = Latte|Americano;
+
+// BEST
+type CoffeeResponse = Latte | Americano;
+
+class CoffeeService {
+  getLatte(): CoffeeResponse {
+    return assert(fetchResponse(), "Coffee maker is broken, file a ticket");
+  }
+}
+```
+
+And, when creating array types, do use the shorthand `[]` over the generic `Array<>`. While both ways are equivalent, using shorthand types often leads to more concise, readable, and familiar code. This can improve overall code quality and maintainability, especially in larger codebases.
+
+Moreover, there is one huge benefit that tips the scales in favor of the shorthand syntax: compatibility with Tuple Types.
+
+```ts
+const array1: [number, number, string] = [1, 2, '']; // ✅ Works!
+const array2: Array<[number, number, string]> = [1, 2, '']; // ❌ Error! "Type 'number' is not assignable to type '[number, number, string]'"
+const array3: Array<number | string> = [1, 2, '']; // ✅ Works but it is less precise.
+```
+
+And there is also the question of the potential confusion between the generic Array<> TS type and EcmaScript's [`Array()` constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Array) even though we should not have this problem because TypeScript code must not use the `Array()` constructor, with or without new. Instead, we should always bracket notation to initialize arrays, or `Array.from` to initialize an Array with a certain size.

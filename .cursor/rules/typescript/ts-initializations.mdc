@@ -1,0 +1,27 @@
+---
+description: TypeScript property initialization guidelines
+globs:
+alwaysApply: false
+---
+
+# Initializations
+
+Among the compiler options there is a TypeScript strict flag called `--strictPropertyInitialization`. When set to true, TypeScript will raise an error when a class property was declared but not set in the constructor.
+
+This rule is not only a good practice for TypeScript class but also any kind of initialization. So initializing things is good.
+
+This would be the criteria:
+
+- Strings should be initialized to empty strings.
+- Arrays should be initialized to empty arrays.
+- Booleans should be initialized to `true` or `false`, at our convenience.
+- Numbers should be initialized to `null` unless zero (`0`) value makes better sense.
+- Objects should be initialized to `null` unless they are a global state (explained below).
+- Map constructors should be initialized to empty maps as `new Map()`.
+- Set constructors should be initialized to empty sets as `new Set()`.
+- Dates should be initialized to `null` unless `new Date()` value makes better sense.
+- We should never initialize to `undefined`.
+
+When initializing states, the default value for an object would be `null` if we are setting a local/component state.
+
+However, if we are setting a global/app state, then the object should be initialized property by property, by following the above criteria.

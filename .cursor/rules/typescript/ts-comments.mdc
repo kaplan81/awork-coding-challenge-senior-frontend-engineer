@@ -1,0 +1,23 @@
+---
+description: TypeScript comments and documentation guidelines
+globs:
+alwaysApply: false
+---
+
+# Comments & Documentation
+
+There are two types of comments, JSDoc (`/** ... */`) and non-JSDoc ordinary comments (`// ...` or `/* ... */`).
+
+JSDoc comments are understood by tools such as documentation generators while ordinary comments are meant for humans. Therefore:
+
+- **Do not use JSDoc documentation comments by default if the information is redundant.** TypeScript's type system already provides rich information about parameters, return types, and implementations.
+- Do not use non-JSDoc block comments. Use JSDoc comments instead.
+- Use JSDoc comments for documentation only when they add meaningful, non-redundant information or for JavaScript files that contain `// @ts-check`.
+- Use non-JSDoc line comments for implementation comments or clarifications on the code.
+- Omit comments redundant with TypeScript, e.g. `@param`, `@return` `@implements`, `@enum` or `@private`. Exceptions:
+  - In a JavaScript file with `ts-check`.
+  - We can use `@param` and `@return` if they add really useful information.
+- Do not ever use `@override`, even for documentation purposes.
+- Do use `@todo` to highlight "TODO" tasks to be done in the future.
+- Place documentation prior to decorators and never between the decorator and the decorated statement.
+- Never use `// @ts-ignore` comments.

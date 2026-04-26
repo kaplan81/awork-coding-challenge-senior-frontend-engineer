@@ -1,0 +1,51 @@
+---
+description: Angular Guidelines for component creation and refactor.
+globs:
+alwaysApply: true
+---
+
+# Angular Guidelines
+
+Angular is a platform and framework for building single-page client applications using HTML and TypeScript. The purpose of these guidelines is to provide consistency and best practices for Angular development within this project.
+
+### Official Angular good practices
+
+These are an excerpt of the official Angular guidelines you can find at [https://angular.dev/ai/develop-with-ai#custom-prompts-and-system-instructions](https://angular.dev/ai/develop-with-ai#custom-prompts-and-system-instructions).
+
+We have only taken a subset that is compliant with our guidelines and at the same time compatible with Angular 16.
+
+- Implement lazy loading for feature routes.
+- Always use standalone components over NgModules.
+- Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator.
+- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead.
+- Keep components small and focused on a single responsibility.
+- Keep templates simple and avoid complex logic.
+- Use the async pipe to handle observables.
+- Prefer Reactive forms instead of Template-driven ones.
+- Do NOT use `ngClass`, use `class` bindings instead.
+- Do NOT use `ngStyle`, use `style` bindings instead.
+- Use `NgOptimizedImage` for all static images and remember that it does not work for inline base64 images.
+- Use `signal()` for local componente state management with `computed()` for derived state.
+- Keep state transformations pure and predictable.
+- Do NOT use `mutate` on signals, use `update` or `set` instead.
+- Design services around a single responsibility and use the `providedIn: 'root'` option for singleton ones, so for most of the them in the project.
+- Use the `inject()` function instead of constructor injection.
+
+### Context-Aware Rule Loading
+
+**For AI/LLM:** Load specific rule files based on the Angular development task:
+
+**ALWAYS load for ANY Angular component work:**
+
+- [Component Guide](mdc:.cursor/rules/angular/ng-component-guide.mdc) - Required for all component creation and refactoring
+
+**Load based on specific development scenarios:**
+
+- **When generating new components** → Load [Component Generation](mdc:.cursor/rules/angular/ng-component-generation.mdc)
+
+### Quick Reference
+
+For manual navigation to specific guidelines:
+
+- [Component Guide](mdc:.cursor/rules/angular/ng-component-guide.mdc) - Component creation and structure rules
+- [Component Generation](mdc:.cursor/rules/angular/ng-component-generation.mdc) - Automated component generation workflow

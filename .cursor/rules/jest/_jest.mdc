@@ -1,0 +1,126 @@
+---
+description: Jest coding style and rules
+globs: **/*.spec.ts
+alwaysApply: false
+---
+
+# Jest Guidelines
+
+Unit testing is a type of software testing where individual units of a software are tested.
+
+In the case of the Angular framework the 2 most common units to be tested are components and services. We will establish good practices on both.
+
+The chosen unit testing framework is [Jest](https://jestjs.io/). The purpose of these guidelines is to provide consistency in Jest test suites within an Angular framework architecture.
+
+### Suite structure
+
+First of all, we should import `expect` from `'@jest/globals'` to avoid collisions with any typings from any other testing framework.
+
+As a general rule, we will wrap our suite in a Jest/Jasmine `describe()` that we will call the "primary describe" which contains the name of the symbol to be tested e.g. `UserComponent`.
+
+We also need to define some variables. If they are `const`s we will declare them and assign them out of the primary describe, on top of it. If they are `let`s we will declare them first thing within the primary describe but we will assign them later: at the end of the "setup beforeEach".
+
+Declare all the services and their spies with the rest of the let variables, and assign their value in the setup `beforeEach()`, even if they are only used in 1 spec.
+
+There should never be another `beforeEach()` at the same level as the setup beforeEach.
+
+After that we always write the "acceptance criteria it". In the case of the components, it will check that the initial component state and first changes are properly reflected in the Jest snapshot. In the case of the services we need to check if they are injectables, so if they can be instantiated via dependency injection.
+
+What comes next should be a series of `describe()`s that will correspond our public methods. The text of such should be the name of the method with parenthesis. We test those methods to ensure the API.
+
+We do not need to test the private methods and, as a matter of fact, we should not try to access them. They should be called by the public ones.
+
+We also do not need to test public methods that are a wrapper for public methods in other classes, since those will have their spec there.
+
+Each `describe()` can contain one or several `it()`s whose descriptions should start with the word "should" and the describes should be arranged alphabetically, just the same way as the linted TS classes methods.
+
+On the other hand, if we need a private function for repeated functionality in our specs, we should place this kind of functions right at the bottom of the file, taking full advantage of JS function hoisting. Those functions should always be pure ones.
+
+An abstract example:
+
+```ts
+import { expect } from '@jest/globals';
+
+const mockUserIdMock = 'test-user-123';
+const expectedRedirectPathMock = '/dashboard';
+
+describe('PRIMARY DESCRIBE', () => {
+  let router: Router;
+  let routerNavigateSpy: jest.SpyInstance;
+  let myService: MyService;
+
+  // SETUP BEFOREEACH
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [MyComponentOrService],
+      imports: [RouterTestingModule],
+      providers: [MyService],
+    });
+    router = TestBed.inject(Router);
+    routerNavigateSpy = jest.spyOn(router, 'navigate');
+    myService = TestBed.inject(MyService);
+  });
+
+  it('ACCEPTANCE CRITERIA IT', () => {});
+
+  describe('testableMethod()', () => {
+    it('should meet the expectation', () => {
+      const user: User = createMockUser();
+      // test
+      expect(routerNavigateSpy).toHaveBeenCalledWith([expectedRedirectPathMock]);
+    });
+  });
+});
+
+function createMockUser(userId: string = mockUserIdMock): User {
+  return {
+    id: userId,
+    name: 'Test User',
+    email: 'test@example.com',
+  };
+}
+```
+
+### Testing asynchrony
+
+If we need to test observables in depth we should use [`jest-marbles`](https://github.com/just-jeb/jest-marbles). However, since observables are becoming optional in future Angular versions, we will probably not need to do so.
+
+Normally we will just need to test observable subscriptions in this way:
+
+```ts
+it('should have isLoading$ as false initially', (done: jest.DoneCallback) => {
+  spinnerService.isLoading$.subscribe((isLoading: boolean) => {
+    expect(isLoading).toBe(false);
+    done();
+  });
+});
+```
+
+When testing async operations (promises) that run inside the Angular Zone, we should use Angular's `waitForAsync`. We should avoid it as much as possible, since the Angular of the future will be zoneless.
+
+When testing async operations (promises) that run outside the Angular Zone, we should use EcmaScript's `await` and `async`. For example, to wrap our setup `beforeEach()`'s in component testing.
+
+When testing timers, we should use Angular's `fakeAsync()` together with `tick()`.
+
+Angular's `waitForAsync` (prior version 10 known as simply `async`) wraps a test function in an asynchronous test zone. The test will automatically complete when all asynchronous calls within this zone are done. Can be used to wrap an inject call. It is not to be mistaken with `fakeAsync()` which creates a fake synchronous zone where you can manually control time using `tick()`.
+
+### Context-Aware Rule Loading
+
+**For AI/LLM:** Load specific rule files based on the testing task:
+
+**ALWAYS load for ANY Jest testing:**
+
+- [Mocking Guidelines](mdc:.cursor/rules/jest/jest-ng-mock.mdc) - Required for all mocking patterns (MockProvider, jest.fn(), spies)
+
+**Load based on what you're testing:**
+
+- **When testing Angular components** (`.component.spec.ts` files) → Load [Component Testing](mdc:.cursor/rules/jest/jest-ng-component.mdc)
+- **When testing Angular services** (`.service.spec.ts` files) → Load [Service Testing](mdc:.cursor/rules/jest/jest-ng-service.mdc)
+
+### Quick Reference
+
+For manual navigation to specific guidelines:
+
+- [Mocking](mdc:.cursor/rules/jest/jest-ng-mock.mdc) - Mocking patterns and best practices
+- [Component Testing](mdc:.cursor/rules/jest/jest-ng-component.mdc) - Angular component testing specifics
+- [Service Testing](mdc:.cursor/rules/jest/jest-ng-service.mdc) - Angular service testing specifics

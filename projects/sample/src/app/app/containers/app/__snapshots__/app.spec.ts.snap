@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`App > should match snapshot 1`] = `
+_App {
+  "__ngContext__": 0,
+  "title": [Function],
+}
+`;

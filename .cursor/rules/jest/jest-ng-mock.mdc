@@ -1,0 +1,85 @@
+---
+description: Jest mocking patterns and guidelines
+globs: **/*.spec.ts
+alwaysApply: false
+---
+
+# Jest Mocking Guidelines
+
+Mocking is a fundamental aspect of unit testing that allows us to isolate the unit under test by replacing its dependencies with controlled implementations. This file establishes consistent patterns for mocking in Jest within Angular applications.
+
+### When to mock
+
+We should only mock Angular symbols if they need to be mocked. Otherwise, it is preferred to go for the originals.
+
+However, when mocking services, if they perform any HTTP requests we should never use the real ones, in order to avoid side effects.
+
+We should also mock any needed data for the mocked services. No real data should be used for unit tests.
+
+Our NG modules should not contain providers. However, if we cannot avoid to have a NG module with providers when testing a component, there is a chance to override its providers and replace them with mocks: by using [`overrideComponent()`](https://angular.dev/guide/testing/components-scenarios#the-overridecomponent-method).
+
+### How to mock
+
+When creating a mock, it should be assigned to a `const` variable and its name should contain the suffix `Mock`.
+
+If a mock is meant to be used in 1 suite, it should only be declared and used only in that file. But if a mock can be re-used, it should be located in the corresponding `mocks` folder and its file should be suffixed with `*.mock.ts`. That mock should be exported.
+
+We should not mock Angular symbols manually. The chosen library for mocking Angular symbols is `ng-mocks`. We should use its classic tools.
+
+When mocking components, we should use `MockComponents()` with the components to be mocked as params.
+
+When mocking pipes, we should use `MockPipes()` with the pipes to be mocked as params.
+
+When mocking providers, we should use `MockProvider`, one by one.
+
+However, we should not use the so called "Contemporary tools", since they mask Angular's `TestBed`, which we should preserve for the sake of the future Angular testing.
+
+### Mocking services
+
+We need to make mention of services when it comes to mocking.
+
+When implementing a unit test, the first thing we need to do is configuring the setup. First, we leave everything empty, declaring just the obvious symbols (my component if testing a component or my service when testing a service).
+
+Most likely, this will produce a series of setup errors when running the test. By following those errors we will add what we need.
+
+As stated above, if those symbols can be introduced as the real ones, the better, but in most cases we will need to mock them.
+
+Sometimes `MockProvider` just doesn't cut it for the use cases we need when injecting services. We will need to go deeper and mock some of the service members, either properties or methods.
+
+`MockProvider`'s second param allows to do that in the shape of an object literal. It generates `useValue` under the hood.
+
+However, let us for a moment remember how we would mock an Angular service from scratch if we would not have the `ng-mocks` library:
+
+```ts
+@Injectable()
+class MyServiceMock extends MyService {
+  optionsObj: Record<string, string> = optionsDataMock;
+  observableArrayMethod: jest.Mock<Observable<unknown[]>> = jest.fn(() => of([]));
+  observableVoidMethod: jest.Mock<Observable<void>> = jest.fn(() => of(void 0));
+  promiseMethod: jest.Mock<Promise<any[]>> = jest.fn(() => Promise.resolve([]));
+  voidMethod: jest.Mock<void> = jest.fn();
+  booleanMethod: jest.Mock<boolean> = jest.fn(() => true);
+}
+```
+
+We should follow the same mocking pattern when using `MockProvider` and never use `jest.fn().mockReturnValue()` but rather `jest.fn()` with its corresponding callback, as expressed above.
+
+Here's how you would configure this mock in the `TestBed` providers array using `MockProvider`:
+
+```ts
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    declarations: [MyComponent],
+    providers: [
+      MockProvider(MyService, {
+        optionsObj: optionsDataMock,
+        observableArrayMethod: jest.fn(() => of([])),
+        observableVoidMethod: jest.fn(() => of(void 0)),
+        promiseMethod: jest.fn(() => Promise.resolve([])),
+        voidMethod: jest.fn(),
+        booleanMethod: jest.fn(() => true),
+      }),
+    ],
+  });
+});
+```

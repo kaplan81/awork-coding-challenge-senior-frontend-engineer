@@ -1,0 +1,25 @@
+export enum FormInputFieldType {
+  text,
+  password,
+  email,
+  url,
+  tel,
+  search,
+  number,
+  date,
+  month,
+  week,
+  time,
+  'datetime-local',
+  range,
+  file,
+  color,
+  checkbox,
+  radio,
+  button,
+  submit,
+  reset,
+  hidden,
+}
+
+export type FormInputFieldTypeET = keyof typeof FormInputFieldType;

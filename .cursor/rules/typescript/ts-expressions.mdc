@@ -1,0 +1,125 @@
+---
+description: TypeScript expressions and conditional logic guidelines
+globs:
+alwaysApply: false
+---
+
+# Expressions
+
+We should be as precise as possible. For example, things like `if (myValue)` would only be valid if the value would be a boolean.
+
+We refer here concretely to code that is evaluated, pieces of code that produce a value, such as conditional statements or ternary expressions.
+
+We should stop checking against truthy or falsy values and evaluate like this instead:
+
+```ts
+export function isObject(val: unknown): boolean {
+  return Object.prototype.toString.call(val) === '[object Object]';
+}
+
+export function isEmptyObject(val: unknown): boolean {
+  return isObject(val) && Object.keys(val).length === 0;
+}
+
+export function isNumber(val: unknown): boolean {
+  return typeof val === 'number';
+}
+
+export function isString(val: unknown): boolean {
+  return typeof val === 'string';
+}
+
+export function isBoolean(val: unknown): boolean {
+  return typeof val === 'boolean';
+}
+
+const myAnyOrNull: unknown | null = null;
+const myAnyOrUndefined: unknown | undefined = undefined;
+const myAnyOrNullOrUndefined: unknown | undefined | null = {};
+const myString = '';
+const myArray: unknown[] = [];
+
+if (isObject(myAnyOrNullOrUndefined)) {
+}
+if (isEmptyObject(myAnyOrNullOrUndefined)) {
+}
+if (myAnyOrNull !== null) {
+}
+if (myAnyOrUndefined !== undefined) {
+}
+if (myAnyOrNullOrUndefined != null) {
+}
+if (isNumber(myAnyOrNullOrUndefined)) {
+}
+if (isString(myAnyOrNullOrUndefined)) {
+}
+if (myString.length === 0) {
+}
+if (isBoolean(myAnyOrNullOrUndefined)) {
+}
+if (Array.isArray(myArray)) {
+}
+if (myArray.length === 0) {
+}
+```
+
+Of course the naming used in the examples above would not be valid as a convention, since we should not include types in the actual names. Same way we use the type `unknown`, in order to be effective with the example.
+
+Note that curly braces are enforced for compound statements like the `if` ones from the example. According to Douglas Crockford "Braces should be used around all statements, even single statements, when they are part of a control structure, such as an if or for statement. This makes it easier to add statements without accidentally introducing bugs".
+
+You should consider sometimes if a `switch` statement is more suitable for your implementation needs. If so, remember that it must contain a `default` statement group, even if it contains no code and also that non-empty statement groups (`case ...`) may not fall through and need a `break` whereas empty ones are allowed to fall through.
+
+```ts
+switch (x) {
+  case X:
+  case Y:
+    doSomething();
+    break;
+  default:
+}
+```
+
+We always use strict equality (`===`) in these cases, instead of loose equality (`==`). However, the expression `myAnyOrNullOrUndefined != null` is not loose, it specifically checks if the variable is null or undefined. An old JS trick.
+
+Following these concretions avoids unintended truthy evaluations and unexpected behaviors that could lead to bugs and therefore prevents a lot of runtime errors.
+
+Let us understand why with a good example:
+
+```ts
+const myArray: unknown[] = [];
+let counter = 0;
+
+incrementCounter(myArray);
+
+// Outputs 1 when the intended value should be 0.
+console.log(counter);
+
+function incrementCounter(value: unknown[]) {
+  // Incorrect: unintended truthy evaluation with an empty array.
+  // It should be `if (value.length > 0) {}`.
+  if (value) {
+    counter++;
+  }
+}
+```
+
+The only exception to this coding good practice would be the boolean primitive, since its value is not evaluated and directly tells us if we have `true` or `false` there.
+
+And last but not least: when evaluating code with logical operators we should use the nullish coalescing operator (`??`) instead of the logical OR operator (`||`), since in the latter the left-hand operand is checked against any falsy value whereas in the former it is only checked against `null` or `undefined`, which is what we usually want. If that is not what we want, then, and only then, we should use the OR one (`||`).
+
+An example:
+
+```ts
+const userCount = 0;
+
+// Using logical OR (||) with 0 as a valid value.
+const wrongDefaultUserCount: number = userCount || 19;
+
+// Using nullish coalescing (??) with 0 as a valid value.
+const rightDefaultUserCount: number = userCount ?? 10;
+
+// Output: 19 (incorrect result):
+console.log(wrongDefaultUserCount);
+// Output: 0 (correct result):
+console.log(rightDefaultUserCount);
+```

@@ -1,0 +1,95 @@
+---
+description: TypeScript enum guidelines and alternatives
+globs: **/*.enum.ts
+alwaysApply: false
+---
+
+# Enums
+
+Enums are a very powerful TypeScript symbol that has been fully adopted by the community. Even the Angular core has plenty of them in its source code. But we should use them with care.
+
+There are 2 types of enums:
+
+- Numeric enums.
+- String enums.
+
+Nowadays, NodeJS offers native support for TypeScript. However, only certain constructs are allowed. More specifically, constructs that have runtime semantics are strictly forbidden. Namely:
+
+- `enum` declarations.
+- `namespace`s and `modules` with runtime code.
+- Parameter properties in classes.
+- Non-ECMAScript `import` and `export` assignments.
+
+TypeScript 5.8 released a new flag called [`--erasableSyntaxOnly`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-8.html#the---erasablesyntaxonly-option), basically to support NodeJS but, nevertheless, there are certain things that seem to indicate that this is going to be the rule in the future, even for Frontend implementations. We should get ahead of the curve.
+
+Do not use string enums. Use `as const` instead.
+
+```ts
+// WRONG - String enum
+enum UserRole {
+  admin = 'admin',
+  user = 'user',
+  guest = 'guest',
+}
+
+// RIGHT - Use as const
+export const UserRole = {
+  admin: 'admin',
+  user: 'user',
+  guest: 'guest',
+} as const;
+
+// Create the type from the const assertion
+// This will create a type from enum member values which is usually what you want.
+export type UserRoleET = typeof UserRole[keyof typeof UserRole];
+// This will create a type from enum member keys which is also possible.
+type UserRoleKeyET = keyof typeof UserRole;
+
+
+// Usage is identical
+function checkPermission(role: UserRoleET): boolean {
+  return role === UserRole.admin;
+}
+```
+
+Note that we are not using UpperCamelCase there but lowerCamelCase naming convention, in order to make enums consistent with object literals.
+
+Note also that from every enum we declare we should declare a type from it. This is a good practice and also the real power enums provide: having constants and types at the same time. We will suffix these types with "ET" which stands for Enum Type.
+
+**IMPORTANT:** Always use `keyof typeof EnumName` for the type, never just `EnumName` (which gives numeric values instead of string keys).
+
+But things like `admin = 'admin',` seem a little bit redundant. As a result, we shall always prefer numeric enums instead of string ones.
+
+However, we should still avoid any runtime code, so we will use [`const` enums](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums). They get resolved at compile time, have zero impact in the final bundle and are compatible with `--erasableSyntaxOnly`.
+
+```ts
+// WRONG - Regular numeric enum (creates runtime object)
+enum Direction {
+  up,
+  down,
+  left,
+  right,
+}
+// Compiles to runtime code that creates an object
+
+// RIGHT - Const numeric enum (fully inlined, no runtime code)
+export const enum Direction {
+  up,
+  down,
+  left,
+  right,
+}
+// Compiles to: let dir = 0; (Direction.up becomes 0)
+
+export type DirectionET = keyof typeof Direction;
+
+// Usage is identical but const enum is inlined
+function move(direction: DirectionET): void {
+  // This will be inlined as: if (direction === 0)
+  if (direction === Direction.up) {
+    console.log('Moving up');
+  }
+}
+```
+
+Last consideration: if you are using enums in shared libraries, do not use `const` enums. Use [ambient enums](https://www.typescriptlang.org/docs/handbook/enums.html#ambient-enums) instead. They also provide compile-time inlining without generating runtime code.

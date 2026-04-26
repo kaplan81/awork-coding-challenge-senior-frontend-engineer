@@ -1,0 +1,5 @@
+.<%= dasherize(name) %> {
+  &__block {
+    // styles
+  }
+}

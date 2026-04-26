@@ -1,0 +1,11 @@
+{
+  "$schema": "../../../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "component": {
+      "description": "A custom component schematic",
+      "factory": "./component",
+      "aliases": ["c"],
+      "schema": "./component/schema.json"
+    }
+  }
+}

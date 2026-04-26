@@ -1,0 +1,38 @@
+---
+description: TypeScript immutability and functional programming guidelines
+globs:
+alwaysApply: false
+---
+
+# Immutability
+
+Avoiding mutability in JavaScript comes with several benefits such as facilitating state management, avoiding unintended side effects, aligning with functional programming, and simplifying change detection.
+
+So how do we enforce immutability? Good practices:
+
+- Use `const` variables as much as possible, since this prevents reassignment.
+- Instead of modifying existing objects or arrays, create new ones with the desired changes.
+- Avoid methods that mutate data, such as `Array.prototype.push`, `Array.prototype.pop` or `Array.prototype.splice`.
+- Create shallow copies of objects and arrays by using the spread operator (`...`).
+- Embrace functional programming and do not create impure functions.
+
+```ts
+// Mutable approach.
+let mutableArray: number[] = [1, 2, 3];
+mutableArray.push(4);
+
+// Immutable approach.
+const immutableArray: number[] = [1, 2, 3];
+const newImmutableArray: number[] = [...immutableArray, 4];
+
+// Impure function with side effects.
+let total = 0;
+function addToTotal(value: number) {
+  total += value;
+}
+
+// Pure function without side effects.
+function addValues(currentTotal: number, value: number): number {
+  return currentTotal + value;
+}
+```

@@ -1,0 +1,120 @@
+---
+description: TypeScript function declaration and usage guidelines
+globs:
+alwaysApply: false
+---
+
+# Functions
+
+Use `function foo(): void { ... }` to declare named functions, including functions in nested scopes, e.g. within another function.
+
+Use function declarations instead of assigning a function expression into a local variable (`const x: () => void = function() {...};`). TypeScript already disallows rebinding functions, so preventing overwriting a function declaration by using `const` is unnecessary.
+
+Top level arrow functions may be used to explicitly declare that a function implements an interface.
+
+```ts
+interface SearchFunction {
+  (source: string, subString: string): boolean;
+}
+
+const fooSearch: SearchFunction = (source, subString) => { ... };
+```
+
+In expressions, always use arrow functions instead of pre-ES6 function expressions defined with the `function` keyword.
+
+```ts
+// WRONG
+bar(function(): void { ... })
+
+// RIGHT
+bar(() => {
+  this.doSomething();
+});
+```
+
+In those cases, it is not necessary to add a return type.
+
+Also, remember that `this` in an arrow function is the lexical bound meaning it is inheriting its context from the enclosing scope where it was defined. That is why arrow functions are often used in callbacks where you want to preserve the `this` of the outer function.
+
+```ts
+const obj: {
+  regular: () => void;
+  arrow: () => void;
+} = {
+  regular: function () {
+    console.log('regular:', this);
+  },
+  arrow: () => {
+    console.log('arrow:', this);
+  },
+};
+obj.regular(); // regular: obj
+obj.arrow(); // arrow: global object (e.g. Window) or undefined if we are in strict mode
+```
+
+Function expressions must not use `this` unless they specifically exist to rebind the this pointer. Rebinding `this` can in most cases be avoided by using arrow functions or explicit parameters.
+
+```ts
+// WRONG
+function clickHandler() {
+  // Bad: what's `this` in this context?
+  this.textContent = 'Hello';
+}
+// Bad: the `this` pointer reference is implicitly set to document.body.
+document.body.onclick = clickHandler;
+
+// RIGHT
+document.body.onclick = () => {
+  document.body.textContent = 'hello';
+};
+// Alternatively: take an explicit parameter
+const setTextFn = (e: HTMLElement) => {
+  e.textContent = 'hello';
+};
+document.body.onclick = setTextFn.bind(null, document.body);
+```
+
+We should also think about when to use expression bodies and when to use block bodies in functions.
+
+**Expression bodies** (concise body syntax):
+
+- Use `=>` directly followed by the expression
+- Automatically return the result of the expression
+- No explicit `return` statement needed
+- Best for simple, single-expression functions
+
+**Block bodies** (block statement syntax):
+
+- Use `=> { }` with curly braces
+- Require explicit `return` statement if you want to return a value
+- Allow multiple statements
+- Best for complex logic or multiple operations
+
+```ts
+// Top level functions use function declarations.
+function someFunction(books: Book[], myValues: unknown[]): void {
+  // Block arrow function bodies, i.e. bodies with => { }, are fine:
+  const receipts: Receipt[] = books.map((b: Book) => {
+    const receipt: Receipt = payMoney(b.price);
+    recordTransaction(receipt);
+    return receipt;
+  });
+  // Expression bodies are fine, too, if the return value is used:
+  const longThings: string[] = myValues.filter(v => v.length > 1000).map(v => String(v));
+  function payMoney(amount: number): Receipt {
+    // function declarations are fine, but don't access `this` in them.
+  }
+}
+```
+
+Only use an expression body if the return value of the function is actually used.
+
+```ts
+// WRONG
+myPromise.then((v: unknown) => console.log(v));
+
+// RIGHT
+myPromise.then((v: unknown) => {
+  console.log(v);
+});
+```

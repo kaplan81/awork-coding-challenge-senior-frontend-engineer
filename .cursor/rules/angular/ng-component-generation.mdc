@@ -1,0 +1,62 @@
+---
+description: Angular component creation and refactoring guidelines
+globs:
+alwaysApply: true
+---
+
+# Angular Component Generation
+
+If a user asks for help to create or generate a new Angular component from scratch, we should follow these steps.
+
+### Step 1: Project Selection
+
+ASK: "Which Angular project are you creating this component for? Options include: all projects referenced in [angular.json](mdc:angular.json)"
+
+- WAIT FOR USER RESPONSE
+- STORE response as {project_name}
+
+### Step 2: Feature/Domain Path
+
+- ASK: "Please provide the feature/domain name which matches the name of the existing folder in src/app"
+- WAIT FOR USER RESPONSE
+- STORE response as {feature_path}
+- SET {base_path} to "projects/{project_name}/src/app/{feature_path}"
+
+### Step 3: Component Type
+
+ASK: "What type of component is this? If you do not know the difference, please check the guidelines at [ng-component-guide.mdc](mdc:.cursor/rules/angular/ng-component-guide.mdc)
+
+- 'container' (c): for components handling data fetching and/or global app state
+- 'presentational' (p): for input/output components with minimal business logic
+  Please just write 'c' for container or 'p' for presentational."
+
+- WAIT FOR USER RESPONSE
+- STORE response as {component_type_raw}
+- SET {component_type} to "containers" if {component_type_raw} is "c" and "components" if {component_type_raw} is "p"
+
+### Step 4: Component Name
+
+ASK: "What name would you like to use for the component? Use dash case naming convention, without prefixes or suffixes (example: `my-feature` instead of `app-my-feature.component.ts`). I will produce the correct file name for you."
+
+- WAIT FOR USER RESPONSE
+- STORE response as {component_name}
+
+### Step 5: Final Component Path Determination
+
+- SET {component_folder_path} to "{base_path}/{component_type}/{component_name}"
+- INFORM USER: "I'll create the component at {component_folder_path}"
+
+### Step 6: Generate Component Using Custom Schematic
+
+- CONSTRUCT the schematic command:
+  ```bash
+  npm run schematics:component -- --project={project_name} --feature-path={feature_path} --component-type={component_type_raw} --name={component_name} --dry-run=false
+  ```
+- INFORM USER: "Running the following command to generate your component:"
+- SHOW the constructed command
+- SUGGEST: "To create the component files without dry-run, add --dry-run=false to the command"
+- EXPLAIN: "This will generate the following files with proper Angular practices:
+  1. {component_name}.component.ts with OnPush change detection and standalone configuration
+  2. {component_name}.component.html with proper class naming
+  3. {component_name}.component.scss for component styling
+  4. {component_name}.component.spec.ts with basic test configuration"

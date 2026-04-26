@@ -1,0 +1,66 @@
+---
+description: TypeScript variable declaration guidelines
+globs:
+alwaysApply: false
+---
+
+# Variable declaration
+
+Remember:
+
+- There are 4 scopes in JS:
+  - Global: default for script mode.
+  - Module: default for module mode.
+  - Function: for a function execution context.
+  - Block: for a curly braces execution context.
+- `const` and `let` take the scope of the context they are declared in. However, `var` will always take either the global or the module scope, depending on the mode of the JS file.
+- `var` is hoisted, whereas `const` and `let` are not, meaning the latter will belong to what is called the "temporal dead zone" till their declaration. If we try to access them before that we will get an error: "ReferenceError: Cannot access 'x' before initialization".
+- `var` and `let` are initialized to `undefined` by default but not `const`. That one needs to be initialized, otherwise we will get an error: "Missing initializer in const declaration".
+- `var` and `let` can be re-assigned. `const` on the other hand cannot be re-assigned but if it is an object, that object can be mutated unless we use `Object.freeze()` to make that object immutable.
+
+We propose to always use `const`. If that one cannot be used, then `let`. But never use `var` unless it is strictly necessary.
+
+Since assignments are optional in `const` and `let` variables, those should be declared first.
+
+Normally we should not declare variables just because of readability, we should declare variables if they are going to be reused, or in other words: used more than once.
+
+```ts
+// WRONG
+function unneededConstFunction(): Record<string, null> {
+  const variable: Record<string, null> = {
+    key1: null,
+    key2: null,
+    key3: null,
+  };
+  return variable;
+}
+
+// RIGHT
+function cleanerFunction(): Record<string, null> {
+  return {
+    key1: null,
+    key2: null,
+    key3: null,
+  };
+}
+```
+
+Unless it really helps for readability:
+
+```ts
+export const getClusterName = (): string => {
+  const envMatches: string[] | undefined = /(.{1,10080})\.mycompany\.cloud/.exec(location.origin)?.[1].split('.');
+  // This helps for readability a lot, even though we are only using the variable once.
+  return envMatches?.[1] || 'UNKNOWN';
+};
+```
+
+However, this code snippet could be improved: we should not assign functions to variables, because the function would not be hoisted at the top of the scope. Hoisting has more benefits than disadvantages, since you can use the function before its declaration. Also the `const` syntax is more verbose and we should not use the logical OR (`||`) but the nullish coalescing operator (`??`). So it would be better this way:
+
+```ts
+// Use `function` instead of `const`.
+export function getClusterName(): string {
+  const envMatches: string[] | undefined = /(.*{1,10080})\.mycompany\.cloud/.exec(location.origin)?.[1].split('.');
+  return envMatches?.[1] ?? 'UNKNOWN';
+}
+```
