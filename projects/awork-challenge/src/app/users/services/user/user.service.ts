@@ -27,7 +27,7 @@ export class UserService {
       lastname: userDto.name.last,
       email: userDto.email,
       phone: userDto.phone,
-      image: userDto.picture.medium,
+      image: `${userDto.picture.medium}?id=${userDto.login.uuid}`,
       nat: userDto.nat,
       login: userDto.login,
     }));
