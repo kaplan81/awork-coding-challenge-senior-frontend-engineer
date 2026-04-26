@@ -1,14 +1,14 @@
-export interface UserState {
+export interface User {
   firstname: string;
   lastname: string;
   email: string;
   phone: string;
   image: string;
   nat: string;
-  login: UserStateLogin;
+  login: UserLogin;
 }
 
-export interface UserStateLogin {
+export interface UserLogin {
   uuid: string;
   username: string;
   password: string;
