@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+
+# Build and compiler output
+dist
+out-tsc
+tmp
+.angular
+bazel-out
+
+# Tests and reports
+coverage
+
+# Auto-generated (large diffs; not hand-edited)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Minified assets
+**/*.min.js
+**/*.min.css
+**/*.min.html
+
+# Agent skills (tracked alongside repo)
+.agents/skills/angular-developer/
+.agents/skills/angular-new-app/
