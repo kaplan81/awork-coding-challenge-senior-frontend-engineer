@@ -28,7 +28,7 @@
     "featurePath": {
       "type": "string",
       "description": "The feature or domain path where the component will be created.",
-      "x-prompt": "Please provide the feature/domain name which matches the name of the existing folder (e.g., 'dashboard', 'contact')"
+      "x-prompt": "Please provide the feature/domain name which matches the name of the existing folder (e.g., 'users', 'contact')"
     },
     "componentType": {
       "type": "string",

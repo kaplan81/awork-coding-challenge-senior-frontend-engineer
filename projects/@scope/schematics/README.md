@@ -32,7 +32,7 @@ npm run generate:component
 The schematic will ask several questions:
 
 1. Which Angular project are you creating this component for?
-2. Please provide the feature/domain name which matches the name of the existing folder (e.g., 'dashboard', 'contact')
+2. Please provide the feature/domain name which matches the name of the existing folder (e.g., 'users', 'contact')
 3. What type of component is this? If you do not know the difference, please check the guidelines.
 4. What name would you like to use for the component?
 

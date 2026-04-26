@@ -10,12 +10,12 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
-  selector: 'awk-dashboard',
+  selector: 'awk-users',
   standalone: true,
-  styleUrls: ['./dashboard.component.scss'],
-  templateUrl: './dashboard.component.html',
+  styleUrls: ['./users.component.scss'],
+  templateUrl: './users.component.html',
 })
-export class DashboardComponent {
+export class UsersComponent {
   // Remove this prop if this component contains no RxJS subscriptions.
   #destroyRef = inject(DestroyRef);
   // Remove this prop if this component contains no loading interface (e.g. spinner or progress).
