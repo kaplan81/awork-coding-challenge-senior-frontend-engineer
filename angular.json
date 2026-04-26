@@ -35,6 +35,9 @@
             "browser": "projects/awork-challenge/src/main.ts",
             "tsConfig": "projects/awork-challenge/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/awork-challenge/src/styles"]
+            },
             "assets": [
               {
                 "glob": "**/*",
