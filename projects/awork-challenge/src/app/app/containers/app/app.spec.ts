@@ -25,6 +25,6 @@ describe('App', () => {
 
   it('should render title', async () => {
     await fixture.whenStable();
-    expect(nativeEl.querySelector('h1')?.textContent).toContain('Hello, sample');
+    expect(nativeEl.querySelector('h1')?.textContent).toContain('Hello, awork-challenge');
   });
 });

@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "sample": {
+    "awork-challenge": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -25,23 +25,23 @@
           "flat": false
         }
       },
-      "root": "projects/sample",
-      "sourceRoot": "projects/sample/src",
+      "root": "projects/awork-challenge",
+      "sourceRoot": "projects/awork-challenge/src",
       "prefix": "smp",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "projects/sample/src/main.ts",
-            "tsConfig": "projects/sample/tsconfig.app.json",
+            "browser": "projects/awork-challenge/src/main.ts",
+            "tsConfig": "projects/awork-challenge/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "projects/sample/public"
+                "input": "projects/awork-challenge/public"
               }
             ],
-            "styles": ["projects/sample/src/styles.scss"]
+            "styles": ["projects/awork-challenge/src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -71,10 +71,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "sample:build:production"
+              "buildTarget": "awork-challenge:build:production"
             },
             "development": {
-              "buildTarget": "sample:build:development"
+              "buildTarget": "awork-challenge:build:development"
             }
           },
           "defaultConfiguration": "development"

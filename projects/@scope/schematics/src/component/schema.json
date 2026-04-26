@@ -22,7 +22,7 @@
       "x-prompt": {
         "message": "Which Angular project are you creating this component for?",
         "type": "list",
-        "items": [{ "value": "sample", "label": "sample" }]
+        "items": [{ "value": "awork-challenge", "label": "awork-challenge" }]
       }
     },
     "featurePath": {

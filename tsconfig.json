@@ -24,10 +24,10 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/sample/tsconfig.app.json"
+      "path": "./projects/awork-challenge/tsconfig.app.json"
     },
     {
-      "path": "./projects/sample/tsconfig.spec.json"
+      "path": "./projects/awork-challenge/tsconfig.spec.json"
     }
   ]
 }
