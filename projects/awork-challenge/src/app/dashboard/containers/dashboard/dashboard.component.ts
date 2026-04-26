@@ -10,7 +10,7 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
-  selector: 'smp-dashboard',
+  selector: 'awk-dashboard',
   standalone: true,
   styleUrls: ['./dashboard.component.scss'],
   templateUrl: './dashboard.component.html',

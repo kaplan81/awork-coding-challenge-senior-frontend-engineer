@@ -27,7 +27,7 @@
       },
       "root": "projects/awork-challenge",
       "sourceRoot": "projects/awork-challenge/src",
-      "prefix": "smp",
+      "prefix": "awk",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
