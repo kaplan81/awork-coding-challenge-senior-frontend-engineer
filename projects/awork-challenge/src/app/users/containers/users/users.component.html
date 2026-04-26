@@ -1,11 +1,9 @@
-@if (users().length) {
-  <article class="user-list">
+<article class="user-list">
+  @if (users().length) {
     @for (user of users(); track $index) {
       <awk-user [user]="user" [allUsers]="users()" />
     }
-  </article>
-} @else {
-  <article class="user-list">
+  } @else {
     <p>Loading…</p>
-  </article>
-}
+  }
+</article>
