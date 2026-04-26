@@ -1,9 +1,52 @@
-<article class="user-list">
-  @if (users().length) {
-    @for (user of users(); track $index) {
-      <awk-user [user]="user" [allUsers]="users()" />
-    }
+<section class="awk-users">
+  <header class="awk-users__header">
+    <h1 class="awk-users__title">Users</h1>
+    <p class="awk-users__subtitle">
+      Browse {{ users().length }} users grouped by {{ criterion() }}.
+    </p>
+  </header>
+
+  <awk-users-toolbar
+    [totalCount]="users().length"
+    [matchCount]="filteredUsers().length"
+    [criterion]="criterion()"
+    (searchChange)="onSearchChange($event)"
+  />
+
+  <div class="awk-users__columns" role="row" aria-hidden="true">
+    <span class="awk-users__columns-cell awk-users__columns-cell--avatar"></span>
+    <span class="awk-users__columns-cell">Name</span>
+    <span class="awk-users__columns-cell">Email</span>
+    <span class="awk-users__columns-cell">Country</span>
+    <span class="awk-users__columns-cell awk-users__columns-cell--age">Age</span>
+    <span class="awk-users__columns-cell"></span>
+  </div>
+
+  @if (isLoading()) {
+    <div class="awk-users__state" role="status">
+      <span class="awk-users__spinner" aria-hidden="true"></span>
+      <span>Loading 5,000 users…</span>
+    </div>
+  } @else if (error() !== null) {
+    <div class="awk-users__state awk-users__state--error" role="alert">
+      <strong>Could not load users.</strong>
+      <span>Please refresh the page.</span>
+    </div>
+  } @else if (groups().length === 0) {
+    <div class="awk-users__state">
+      <span>No users match your search.</span>
+    </div>
   } @else {
-    <p>Loading…</p>
+    <div class="awk-users__groups">
+      @for (group of groups(); track trackByGroupKey($index, group)) {
+        <awk-user-group
+          [group]="group"
+          [open]="isGroupOpen(group.key)"
+          [expandedUserId]="expandedUserIdFor(group.key)"
+          (toggleOpen)="onToggleGroup(group.key)"
+          (toggleUser)="onToggleUser(group, $event)"
+        />
+      }
+    </div>
   }
-</article>
+</section>

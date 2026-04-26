@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UserRowComponent > should match snapshot 1`] = `
+{
+  "componentName": "_UserRowComponent",
+  "expanded": false,
+  "user": {
+    "age": 30,
+    "cell": "222",
+    "city": "Springfield",
+    "country": "United States",
+    "dob": "1995-01-01",
+    "email": "anna@a.com",
+    "firstname": "Anna",
+    "gender": "female",
+    "id": "uuid-1",
+    "image": "https://example.com/medium.jpg",
+    "imageLarge": "https://example.com/large.jpg",
+    "lastname": "Adams",
+    "login": {
+      "md5": "md5",
+      "password": "pwd",
+      "salt": "salt",
+      "sha1": "sha1",
+      "sha256": "sha256",
+      "username": "anna-a",
+      "uuid": "uuid-1",
+    },
+    "nat": "US",
+    "phone": "111",
+    "state": "IL",
+    "username": "anna-a",
+  },
+}
+`;

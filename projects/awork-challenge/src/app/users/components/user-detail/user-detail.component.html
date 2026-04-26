@@ -1,0 +1,46 @@
+<figure class="awk-user-detail__media">
+  <img
+    [ngSrc]="user().imageLarge"
+    [alt]="user().firstname + ' ' + user().lastname"
+    width="128"
+    height="128"
+  />
+  <figcaption class="awk-user-detail__media-caption">
+    {{ user().firstname }} {{ user().lastname }}
+  </figcaption>
+</figure>
+
+<dl class="awk-user-detail__grid">
+  <div class="awk-user-detail__field">
+    <dt>Username</dt>
+    <dd>&#64;{{ user().username }}</dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Gender</dt>
+    <dd>{{ user().gender | titlecase }}</dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Age</dt>
+    <dd>{{ user().age }}</dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Date of birth</dt>
+    <dd>{{ user().dob | date: 'longDate' }}</dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Email</dt>
+    <dd><a [href]="'mailto:' + user().email">{{ user().email }}</a></dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Phone</dt>
+    <dd>{{ user().phone }}</dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Cell</dt>
+    <dd>{{ user().cell }}</dd>
+  </div>
+  <div class="awk-user-detail__field">
+    <dt>Location</dt>
+    <dd>{{ user().city }}, {{ user().state }}, {{ user().country }}</dd>
+  </div>
+</dl>

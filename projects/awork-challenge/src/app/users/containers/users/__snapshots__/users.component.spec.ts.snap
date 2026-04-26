@@ -3,6 +3,16 @@
 exports[`UsersComponent > should match snapshot 1`] = `
 _UsersComponent {
   "__ngContext__": 0,
+  "criterion": [Function],
+  "error": [Function],
+  "expandedUser": [Function],
+  "filteredUsers": [Function],
+  "groups": [Function],
+  "hasUsers": [Function],
+  "isGrouping": [Function],
+  "isLoading": [Function],
+  "openGroupKeys": [Function],
+  "searchTerm": [Function],
   "users": [Function],
 }
 `;

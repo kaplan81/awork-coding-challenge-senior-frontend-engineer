@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UsersToolbarComponent > should match snapshot 1`] = `
+{
+  "componentName": "_UsersToolbarComponent",
+  "criterion": "nationality",
+  "matchCount": 0,
+  "searchValue": "",
+  "totalCount": 0,
+}
+`;

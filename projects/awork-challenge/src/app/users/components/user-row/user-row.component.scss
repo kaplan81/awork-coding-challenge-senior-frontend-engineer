@@ -1,0 +1,85 @@
+@use 'ease/ease-import.scss' as *;
+
+:host {
+  align-items: center;
+  background-color: $color-white;
+  border-bottom: 1px solid $color-fog;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: grid;
+  font-size: $font-size-small;
+  grid-template-columns: 40px minmax(180px, 1.4fr) minmax(160px, 1.6fr) minmax(120px, 1fr) 60px 24px;
+  gap: $spacing-m;
+  height: 56px;
+  outline: none;
+  padding: 0 $spacing-l;
+  transition: background-color 120ms ease-out;
+}
+
+:host(:hover),
+:host(:focus-visible) {
+  background-color: $color-ice;
+}
+
+:host(.awk-user-row--expanded) {
+  background-color: $color-sky;
+  border-bottom-color: transparent;
+}
+
+.awk-user-row__avatar {
+  align-items: center;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+
+  img {
+    border-radius: 50%;
+    height: 40px;
+    object-fit: cover;
+    width: 40px;
+  }
+}
+
+.awk-user-row__cell {
+  color: $text-color-dark;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &--name {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+
+  &--email,
+  &--country {
+    color: $text-color-light;
+  }
+
+  &--age {
+    color: $text-color-dark;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  &--toggle {
+    color: $color-steel;
+    text-align: center;
+  }
+}
+
+.awk-user-row__name {
+  font-weight: $font-weight-semi;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awk-user-row__username {
+  color: $text-color-light;
+  font-size: $font-size-tiny;
+  line-height: $line-height-tiny;
+}

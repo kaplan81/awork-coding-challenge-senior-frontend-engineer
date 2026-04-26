@@ -1,0 +1,31 @@
+<span class="awk-user-row__avatar">
+  <img
+    [ngSrc]="user().image"
+    [alt]="user().firstname + ' ' + user().lastname"
+    width="40"
+    height="40"
+  />
+</span>
+
+<span class="awk-user-row__cell awk-user-row__cell--name">
+  <span class="awk-user-row__name">
+    {{ user().firstname }} {{ user().lastname }}
+  </span>
+  <span class="awk-user-row__username">&#64;{{ user().username }}</span>
+</span>
+
+<span class="awk-user-row__cell awk-user-row__cell--email">
+  {{ user().email }}
+</span>
+
+<span class="awk-user-row__cell awk-user-row__cell--country">
+  {{ user().country }}
+</span>
+
+<span class="awk-user-row__cell awk-user-row__cell--age">
+  {{ user().age }}
+</span>
+
+<span class="awk-user-row__cell awk-user-row__cell--toggle" aria-hidden="true">
+  {{ expanded() ? '▾' : '▸' }}
+</span>

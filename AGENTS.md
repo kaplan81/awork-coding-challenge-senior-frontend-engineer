@@ -36,6 +36,11 @@ This document describes the architecture of the `awork-challenge` repository. It
 
 ```
 awork-coding-challenge-senior-frontend-engineer-repo/
+├── docs/
+│   └── evolutions/                  # Spec-Driven Development log (one folder per evolution)
+│       ├── README.md                # SDD workflow + index of evolutions
+│       └── users-perf-grouping/
+│           └── plan.md              # Spec we drove the users perf + grouping work from
 ├── projects/
 │   ├── @scope/
 │   │   └── schematics/              # Custom Angular schematics for code generation
@@ -55,6 +60,7 @@ awork-coding-challenge-senior-frontend-engineer-repo/
 │       ├── public/                  # Static assets
 │       ├── tsconfig.app.json
 │       ├── tsconfig.spec.json
+│       ├── tsconfig.worker.json     # TS config used by `@angular/build:application` for Web Workers
 │       └── src/
 │           ├── main.ts              # bootstrapApplication(App, appConfig)
 │           ├── styles.scss          # Global styles entry point
@@ -83,38 +89,42 @@ awork-coding-challenge-senior-frontend-engineer-repo/
 │               │       └── window/  # Window/browser utilities
 │               └── users/           # `users` feature (lazy-loaded)
 │                   ├── users.routes.ts
-│                   ├── components/
-│                   │   └── user/    # Presentational `UserComponent`
+│                   ├── components/  # Presentational components: user-row, user-detail, user-group, users-toolbar
 │                   ├── containers/
 │                   │   └── users/   # Smart `UsersComponent`
 │                   ├── directives/
-│                   ├── enums/
+│                   ├── enums/       # `grouping-criterion.enum.ts`
 │                   ├── mocks/
-│                   ├── models/      # `user.model.ts`, `user-api.model.ts`, `user-dto.model.ts`
+│                   ├── models/      # `user.model.ts`, `user-group.model.ts`, `grouping-{request,response}.model.ts`, `user-api.model.ts`, `user-dto.model.ts`
 │                   ├── pipes/
 │                   ├── services/
-│                   │   └── user/    # `UserService` (calls randomuser.me)
+│                   │   ├── user/             # `UserService` (calls randomuser.me)
+│                   │   └── user-grouping/    # `UserGroupingService` + `user-grouping.worker.ts`
 │                   └── utils/
+│                       ├── group-users/                           # Pure grouping util (used by worker + sync fallback)
+│                       ├── filter-users/                          # Pure search filter
+│                       └── expandable-virtual-scroll-strategy/    # CDK `VirtualScrollStrategy` for one-row expansion
 ├── angular.json
 ├── package.json
 ├── Makefile
 └── tsconfig.json
 ```
 
-> Additional features must follow the `users/` feature layout.
+> Additional features must follow the `users/` feature layout. The `awork-` prefix is **never** used for folder names since everything in this repo is awork; this applies to evolution folders, project folders, and feature folders alike.
 
 ---
 
 ## Ownership
 
-| Area                      | Path                                              | Notes                                                                           |
-| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
-| App shell & global config | `projects/awork-challenge/src/app/app/`           | Root component, routes, providers, global models, mixins, enums, utils         |
-| Users feature             | `projects/awork-challenge/src/app/users/`         | Lazy-loaded feature; reference layout for any new feature                       |
-| Custom schematics         | `projects/@scope/schematics/`                     | Generates components with project-specific boilerplate; built separately       |
-| Global styles             | `projects/awork-challenge/src/styles.scss`        | Single entry point for global SCSS                                              |
-| Shared SCSS partials      | `projects/awork-challenge/src/styles/ease/`       | Imported via `@use 'ease/...'` thanks to `includePaths`                         |
-| Test infrastructure       | `projects/awork-challenge/src/app/app/utils/test/`| Shared helpers for Vitest + Angular TestBed (HTTP mocks, environment detection) |
+| Area                      | Path                                              | Notes                                                                                                                            |
+| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| App shell & global config | `projects/awork-challenge/src/app/app/`           | Root component, routes, providers, global models, mixins, enums, utils                                                           |
+| Users feature             | `projects/awork-challenge/src/app/users/`         | Lazy-loaded feature; reference layout for any new feature                                                                        |
+| Custom schematics         | `projects/@scope/schematics/`                     | Generates components with project-specific boilerplate; built separately                                                         |
+| Global styles             | `projects/awork-challenge/src/styles.scss`        | Single entry point for global SCSS                                                                                               |
+| Shared SCSS partials      | `projects/awork-challenge/src/styles/ease/`       | Imported via `@use 'ease/...'` thanks to `includePaths`                                                                          |
+| Test infrastructure       | `projects/awork-challenge/src/app/app/utils/test/`| Shared helpers for Vitest + Angular TestBed (HTTP mocks, environment detection)                                                  |
+| Spec-Driven evolutions    | `docs/evolutions/`                                | One subfolder per evolution. Each holds `spec.md` (what + why), `plan.md` (how + trade-offs, sealed at end of implementation), and an optional `summary.md` (post-snapshot iteration log). See SDD section below. |
 
 ### Feature Ownership Pattern
 
@@ -231,3 +241,31 @@ npm run build:fz-schematics:watch   # watch mode
 - Global styles entry point: `projects/awork-challenge/src/styles.scss`.
 - Shared SCSS partials live under `src/styles/ease/` and are imported with `@use 'ease/<partial>'` thanks to the `includePaths` configured in `angular.json`.
 - Responsive breakpoints follow Bootstrap 5 breakpoints and are defined in the `BootstrapBreakpointMediaQuery` enum (`app/app/enums/breakpoints.enum.ts`).
+
+### Spec-Driven Development
+
+Non-trivial changes are tracked as **evolutions**, each living in its own folder under `docs/evolutions/<kebab-case-evolution-name>/`. We borrow the three-phase shape (not the tooling) from [GitHub Spec Kit](https://github.com/github/spec-kit):
+
+| Phase         | File         | Required?                  | Purpose                                                                                                                       |
+| ------------- | ------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Specify**   | `spec.md`    | Yes                        | The *what* and *why*. User stories, acceptance scenarios, must/should/could requirements, success criteria. **Tech-stack-free.** |
+| **Plan**      | `plan.md`    | Yes                        | The *how*. Tech stack, architecture, file map, trade-offs. Sealed at end of implementation; closes with *Outcome & Deviations*. |
+| **Iterate**   | `summary.md` | Optional, append-only      | Post-snapshot iterations: refactors and review feedback that landed *after* the plan was sealed. Each entry cites trigger, decision, touched files. |
+
+Workflow:
+
+1. **Specify first.** Write `docs/evolutions/<evolution-name>/spec.md` capturing user stories, acceptance scenarios and requirements. Stay tech-stack-free.
+2. **Plan in `.cursor/plans/`.** While the architecture, file map and trade-offs are still moving, the live plan lives in `.cursor/plans/<evolution-name>.plan.md` and changes freely.
+3. **Snapshot at implementation start.** Drop a clean copy of the plan into `docs/evolutions/<evolution-name>/plan.md`. That file becomes the contract reviewers check the implementation against.
+4. **Append "Outcome & Deviations"** at implementation end so the committed `plan.md` reflects what was actually shipped, not the pre-implementation guess.
+5. **Append to `summary.md`** for any change that lands *after* the plan is sealed (renames, reorganisations, style passes). The plan and the spec are never edited retroactively.
+6. `docs/evolutions/README.md` indexes all evolutions and documents this workflow.
+
+Conventions:
+
+- Folder names use `<kebab-case>` and **omit the `awork-` prefix** since everything in this repo is awork. Same rule applies to feature/project folders.
+- One evolution = one folder. Future work (e.g. a grouping-criterion switcher, pagination, deploy) gets its own folder.
+- Cross-cutting refactors that touch multiple features still belong to a single evolution folder; the spec documents the cross-feature scope.
+- **Spec ↔ plan separation is hard.** `spec.md` never names a framework, library or test runner; `plan.md` never argues *why* a feature exists. If you find yourself crossing the line, refactor.
+
+This is why `docs/evolutions/` is part of the canonical folder structure above.

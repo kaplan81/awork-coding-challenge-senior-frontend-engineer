@@ -1,14 +1,97 @@
 @use 'ease/ease-import.scss' as *;
 
 :host {
-  .user-list {
-    background-color: $color-white;
-    border-radius: 18px;
-    border: 6px solid $color-sky;
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-    max-width: 60%;
-    padding: 12px;
+  display: block;
+  margin: 0 auto;
+  max-width: 1080px;
+  padding: $spacing-xl $spacing-l;
+}
+
+.awk-users {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-l;
+}
+
+.awk-users__header {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-m;
+  justify-content: space-between;
+}
+
+.awk-users__title {
+  color: $text-color-dark;
+  font-size: $font-size-h1;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-h1;
+  margin: 0;
+}
+
+.awk-users__subtitle {
+  color: $text-color-light;
+  font-size: $font-size-small;
+  line-height: $line-height-small;
+  margin: 0;
+}
+
+.awk-users__columns {
+  align-items: center;
+  background-color: $color-ice;
+  border: 1px solid $color-fog;
+  border-radius: 8px;
+  color: $text-color-light;
+  display: grid;
+  font-size: $font-size-tiny;
+  font-weight: $font-weight-semi;
+  gap: $spacing-m;
+  grid-template-columns: 40px minmax(180px, 1.4fr) minmax(160px, 1.6fr) minmax(120px, 1fr) 60px 24px;
+  letter-spacing: 0.04em;
+  padding: $spacing-s $spacing-l;
+  text-transform: uppercase;
+}
+
+.awk-users__columns-cell--age {
+  text-align: right;
+}
+
+.awk-users__state {
+  align-items: center;
+  background-color: $color-white;
+  border: 1px dashed $color-fog;
+  border-radius: 12px;
+  color: $text-color-light;
+  display: flex;
+  flex-direction: column;
+  font-size: $font-size-normal;
+  gap: $spacing-s;
+  padding: $spacing-xxxl;
+  text-align: center;
+
+  &--error {
+    background-color: $color-orange-50;
+    border-color: $color-orange-300;
+    color: $color-orange-900;
   }
+}
+
+.awk-users__spinner {
+  animation: awk-users-spin 0.85s linear infinite;
+  border: 3px solid $color-fog;
+  border-radius: 50%;
+  border-top-color: $color-blue-700;
+  height: 28px;
+  width: 28px;
+}
+
+@keyframes awk-users-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.awk-users__groups {
+  display: flex;
+  flex-direction: column;
 }

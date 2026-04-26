@@ -1,0 +1,65 @@
+@use 'ease/ease-import.scss' as *;
+
+:host {
+  background-color: $color-white;
+  border-radius: 12px;
+  box-shadow: 0 1px 0 $color-fog;
+  display: block;
+  margin-bottom: $spacing-m;
+  overflow: hidden;
+}
+
+.awk-user-group__header {
+  align-items: center;
+  background: linear-gradient(180deg, $color-sky 0%, $color-ice 100%);
+  border: 0;
+  color: $text-color-dark;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-weight: $font-weight-semi;
+  gap: $spacing-m;
+  padding: $spacing-m $spacing-l;
+  position: sticky;
+  text-align: left;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+
+  &:hover,
+  &:focus-visible {
+    background: linear-gradient(180deg, $color-fog 0%, $color-sky 100%);
+    outline: none;
+  }
+}
+
+.awk-user-group__chevron {
+  color: $color-steel;
+  font-size: $font-size-h3;
+  width: 16px;
+}
+
+.awk-user-group__label {
+  flex: 1;
+  font-size: $font-size-h3;
+}
+
+.awk-user-group__count {
+  background-color: $color-white;
+  border-radius: 999px;
+  color: $text-color-light;
+  font-size: $font-size-tiny;
+  font-variant-numeric: tabular-nums;
+  font-weight: $font-weight-semi;
+  padding: 2px $spacing-s;
+}
+
+.awk-user-group__body {
+  display: block;
+}
+
+.awk-user-group__viewport {
+  display: block;
+  height: 0;
+  width: 100%;
+}

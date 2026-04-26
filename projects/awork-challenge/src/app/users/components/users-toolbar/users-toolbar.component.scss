@@ -1,0 +1,74 @@
+@use 'ease/ease-import.scss' as *;
+
+:host {
+  align-items: center;
+  background-color: $color-white;
+  border: 1px solid $color-fog;
+  border-radius: 12px;
+  display: flex;
+  gap: $spacing-l;
+  justify-content: space-between;
+  padding: $spacing-m $spacing-l;
+
+  @media (max-width: $m) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.awk-users-toolbar__search {
+  align-items: center;
+  background-color: $color-ice;
+  border: 1px solid $color-fog;
+  border-radius: 8px;
+  display: flex;
+  flex: 1;
+  gap: $spacing-s;
+  max-width: 480px;
+  padding: $spacing-s $spacing-m;
+
+  &:focus-within {
+    border-color: $color-blue-500;
+    box-shadow: 0 0 0 4px $color-blue-o-100;
+  }
+}
+
+.awk-users-toolbar__search-icon {
+  color: $color-steel;
+  font-size: $font-size-h3;
+  line-height: 1;
+}
+
+.awk-users-toolbar__input {
+  background: transparent;
+  border: 0;
+  color: $text-color-dark;
+  flex: 1;
+  font-size: $font-size-normal;
+  outline: none;
+}
+
+.awk-users-toolbar__meta {
+  align-items: center;
+  color: $text-color-light;
+  display: flex;
+  font-size: $font-size-small;
+  gap: $spacing-l;
+}
+
+.awk-users-toolbar__count {
+  color: $text-color-dark;
+  font-variant-numeric: tabular-nums;
+  font-weight: $font-weight-semi;
+}
+
+.awk-users-toolbar__count-total {
+  color: $text-color-light;
+  font-weight: $font-weight-normal;
+}
+
+.awk-users-toolbar__criterion strong {
+  color: $color-blue-900;
+  font-weight: $font-weight-semi;
+  text-transform: capitalize;
+}

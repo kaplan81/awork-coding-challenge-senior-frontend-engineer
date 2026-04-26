@@ -1,0 +1,41 @@
+<button
+  type="button"
+  class="awk-user-group__header"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="'awk-group-body-' + group().key"
+  (click)="onToggleOpen()"
+>
+  <span class="awk-user-group__chevron" aria-hidden="true">
+    {{ open() ? '▾' : '▸' }}
+  </span>
+  <span class="awk-user-group__label">{{ group().label }}</span>
+  <span class="awk-user-group__count">{{ group().count }}</span>
+</button>
+
+@if (open()) {
+  <div
+    class="awk-user-group__body"
+    [attr.id]="'awk-group-body-' + group().key"
+  >
+    <cdk-virtual-scroll-viewport
+      class="awk-user-group__viewport"
+      [style.height.px]="viewportHeight()"
+      [itemSize]="collapsedRowPx"
+    >
+      <ng-container *cdkVirtualFor="let user of group().users; trackBy: trackById; let i = index">
+        <awk-user-row
+          [user]="user"
+          [expanded]="expandedUserId() === user.id"
+          (toggle)="onToggleUser(user)"
+        />
+        @if (expandedUserId() === user.id) {
+          <awk-user-detail
+            [user]="user"
+            animate.enter="awk-user-detail-enter"
+            animate.leave="awk-user-detail-leave"
+          />
+        }
+      </ng-container>
+    </cdk-virtual-scroll-viewport>
+  </div>
+}

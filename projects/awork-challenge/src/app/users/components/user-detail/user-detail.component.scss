@@ -1,0 +1,111 @@
+@use 'ease/ease-import.scss' as *;
+
+:host {
+  background: linear-gradient(160deg, $color-sky 0%, $color-ice 100%);
+  border-bottom: 1px solid $color-fog;
+  box-sizing: border-box;
+  display: grid;
+  gap: $spacing-xl;
+  grid-template-columns: minmax(180px, 220px) 1fr;
+  height: 220px;
+  overflow: hidden;
+  padding: $spacing-xl;
+}
+
+:host(.awk-user-detail-enter) {
+  animation: awk-user-detail-enter 220ms ease-out both;
+}
+
+:host(.awk-user-detail-leave) {
+  animation: awk-user-detail-leave 180ms ease-in both;
+}
+
+@keyframes awk-user-detail-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes awk-user-detail-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.awk-user-detail__media {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-s;
+  margin: 0;
+
+  img {
+    border: 4px solid $color-white;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(var(--color-shadow-rgb), 0.08);
+    height: 128px;
+    object-fit: cover;
+    width: 128px;
+  }
+}
+
+.awk-user-detail__media-caption {
+  color: $text-color-dark;
+  font-size: $font-size-h3;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-h3;
+  text-align: center;
+}
+
+.awk-user-detail__grid {
+  align-content: start;
+  column-gap: $spacing-xl;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  row-gap: $spacing-m;
+
+  @media (max-width: $m) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.awk-user-detail__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  dt {
+    color: $text-color-light;
+    font-size: $font-size-tiny;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    color: $text-color-dark;
+    font-size: $font-size-small;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  a {
+    color: $text-color-accent;
+    text-decoration: none;
+  }
+}

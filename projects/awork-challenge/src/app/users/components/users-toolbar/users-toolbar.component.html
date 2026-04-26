@@ -1,0 +1,19 @@
+<label class="awk-users-toolbar__search">
+  <span class="awk-users-toolbar__search-icon" aria-hidden="true">⌕</span>
+  <input
+    type="search"
+    class="awk-users-toolbar__input"
+    placeholder="Search by name, email, country…"
+    aria-label="Search users"
+    [formControl]="searchControl"
+  />
+</label>
+
+<div class="awk-users-toolbar__meta" aria-live="polite">
+  <span class="awk-users-toolbar__count">
+    {{ matchCount() }} <span class="awk-users-toolbar__count-total">of {{ totalCount() }}</span>
+  </span>
+  <span class="awk-users-toolbar__criterion">
+    Grouped by <strong>{{ criterion() }}</strong>
+  </span>
+</div>

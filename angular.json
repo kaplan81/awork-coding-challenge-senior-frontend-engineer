@@ -34,6 +34,7 @@
           "options": {
             "browser": "projects/awork-challenge/src/main.ts",
             "tsConfig": "projects/awork-challenge/tsconfig.app.json",
+            "webWorkerTsConfig": "projects/awork-challenge/tsconfig.worker.json",
             "inlineStyleLanguage": "scss",
             "stylePreprocessorOptions": {
               "includePaths": ["projects/awork-challenge/src/styles"]
