@@ -3,6 +3,6 @@
 exports[`UsersComponent > should match snapshot 1`] = `
 _UsersComponent {
   "__ngContext__": 0,
-  "isLoading": [Function],
+  "users": [Function],
 }
 `;
