@@ -56,7 +56,7 @@ $gray-colors: (
   'slate': $color-slate,
   'midnight': $color-midnight,
   'asphalt': $color-asphalt,
-  'night': $color-night
+  'night': $color-night,
 ) !default;
 
 // Main colors
@@ -174,7 +174,7 @@ $text-colors: (
   'orange': $color-orange-900,
   'cyan': $color-cyan-900,
   'indigo': $color-indigo-900,
-  'teal': $color-teal-900
+  'teal': $color-teal-900,
 ) !default;
 
 $border-colors: (
@@ -198,7 +198,7 @@ $border-colors: (
   'slate': $color-slate,
   'midnight': $color-midnight,
   'asphalt': $color-asphalt,
-  'night': $color-night
+  'night': $color-night,
 ) !default;
 
 $bg-colors: (
@@ -222,7 +222,7 @@ $bg-colors: (
   'slate': $color-slate,
   'midnight': $color-midnight,
   'asphalt': $color-asphalt,
-  'night': $color-night
+  'night': $color-night,
 ) !default;
 
 /*
@@ -230,7 +230,8 @@ $bg-colors: (
  */
 
 $gradient-purple: linear-gradient(135deg, #e0d7fe 0%, #efdaf6 53%, #fdf3e9 100%);
-$gradient-onboarding: linear-gradient(
+$gradient-onboarding:
+  linear-gradient(
     135deg,
     rgba(190, 171, 255, 1) 0%,
     rgba(199, 154, 250, 1) 53%,
@@ -282,7 +283,7 @@ $breakpoints: (
   s: $s,
   m: $m,
   l: $l,
-  xl: $xl
+  xl: $xl,
 ) !default;
 
 /*
@@ -308,7 +309,7 @@ $spacings: (
   xl: $spacing-xl,
   xxl: $spacing-xxl,
   xxxl: $spacing-xxxl,
-  xxxxl: $spacing-xxxxl
+  xxxxl: $spacing-xxxxl,
 ) !default;
 
 $mobile-content-spacing: 10px !default;
@@ -329,7 +330,7 @@ $icon-sizes: (
   m: $icon-size-m,
   l: $icon-size-l,
   xl: $icon-size-xl,
-  xxl: $icon-size-xxl
+  xxl: $icon-size-xxl,
 ) !default;
 
 /*
@@ -350,5 +351,5 @@ $border-sizes: (
   l: $border-size-l,
   xl: $border-size-xl,
   xxl: $border-size-xxl,
-  xxxl: $border-size-xxxl
+  xxxl: $border-size-xxxl,
 ) !default;
